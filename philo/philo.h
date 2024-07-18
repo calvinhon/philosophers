@@ -14,27 +14,46 @@
 # define PHILO_H
 
 #include <unistd.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
 #include <time.h>
+#include <sys/time.h>
+#include <stdbool.h>
 
-typedef struct s_philo
+typedef struct	s_params
 {
-	pthread_t	thread;
-	size_t		num_of_philos;
-	size_t		time_to_die;
-	size_t		time_to_eat;
-	size_t		time_to_sleep;
-	size_t		num_times_philo_must_eat;
-	size_t		eating;
-	size_t		sleeping;
-	size_t		thinking;
-	size_t		l_fork;
-	size_t		r_fork;
+	size_t			time_to_die;
+	size_t			time_to_eat;
+	size_t			time_to_sleep;
+	int				num_times_philo_must_eat;
+}	t_params;
+
+typedef struct	s_philo
+{
+	size_t			p_index;
+	size_t			times_ate;
+	pthread_mutex_t	*r_fork;
+	pthread_mutex_t	*l_fork;
+	bool			eating;
+	bool			sleeping;
+	bool			thinking;
+	t_params		args;
 }	t_philo;
+
+typedef struct	s_setup
+{
+	pthread_t 		*threads;
+	pthread_mutex_t	*forks;
+	size_t			philo_ct;
+	size_t			i;
+}	t_setup;
 
 size_t	ft_atoi(char *str);
 int		ft_error(char *str, int num);
+int		ft_usleep(size_t msec);
+size_t	get_current_time();
+void    free_all(t_setup *s, t_philo *p)
 
 #endif

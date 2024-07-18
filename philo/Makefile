@@ -13,7 +13,7 @@
 NAME = philo
 CFLAGS = -Wall -Werror -Wextra -pthread
 OBJS = $(SRCS:.c=.o)
-SRCS = main.c utils.c
+SRCS = main.c utils.c free.c
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)

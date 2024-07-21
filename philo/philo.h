@@ -24,36 +24,41 @@
 
 typedef struct	s_params
 {
-	size_t			time_to_die;
-	size_t			time_to_eat;
-	size_t			time_to_sleep;
-	int				num_times_philo_must_eat;
+	size_t		time_to_die;
+	size_t		time_to_eat;
+	size_t		time_to_sleep;
+	int			num_times_philo_must_eat;
 }	t_params;
 
 typedef struct	s_philo
 {
 	size_t			p_index;
+	size_t			last_meal;
 	size_t			times_ate;
-	pthread_mutex_t	*r_fork;
-	pthread_mutex_t	*l_fork;
+	bool			*p_forks;
+	pthread_mutex_t	*forks_lock;
+	t_params		args;
 	bool			eating;
 	bool			sleeping;
 	bool			thinking;
-	t_params		args;
+	bool			dead;
+	size_t			start_time;
+	size_t			philo_ct;
 }	t_philo;
 
 typedef struct	s_setup
 {
-	pthread_t 		*threads;
-	pthread_mutex_t	*forks;
-	size_t			philo_ct;
-	size_t			i;
+	pthread_t 	*threads;
+	bool		*forks;
+	size_t		philo_ct;
+	size_t		i;
 }	t_setup;
 
 size_t	ft_atoi(char *str);
-int		ft_error(char *str, int num);
+int		ft_error(char *str, t_setup *s, t_philo *p, int num);
 int		ft_usleep(size_t msec);
-size_t	get_current_time();
-void    free_all(t_setup *s, t_philo *p)
+size_t	cur_time();
+void    free_all(t_setup *s, t_philo *p);
+void	*routine(void *arg);
 
 #endif

@@ -11,9 +11,9 @@
 # **************************************************************************** #
 
 NAME = philo
-CFLAGS = -Wall -Werror -Wextra -pthread
+CFLAGS = -Wall -Werror -Wextra -pthread -g3 -fsanitize=address
 OBJS = $(SRCS:.c=.o)
-SRCS = main.c utils.c free.c
+SRCS = main.c routine.c utils.c free.c
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)

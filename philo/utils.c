@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-size_t	get_current_time()
+size_t	cur_time()
 {
 	struct	timeval	time;
 
@@ -25,16 +25,16 @@ int	ft_usleep(size_t msec)
 {
 	size_t	start;
 
-	start = get_current_time();
-	while ((get_current_time() - start) < msec)
+	start = cur_time();
+	while ((cur_time() - start) < msec)
 		usleep(1);
 	return (0);
 }
 
 size_t	ft_atoi(char *str)
 {
-	int	num;
-	int	i;
+	size_t	num;
+	int		i;
 
 	num = 0;
 	i = -1;
@@ -43,8 +43,9 @@ size_t	ft_atoi(char *str)
 	return (num);
 }
 
-int	ft_error(char *str, int num)
+int	ft_error(char *str, t_setup *s, t_philo *p, int num)
 {
 	printf("%s\n", str);
+	free_all(s, p);
 	return (num);
 }

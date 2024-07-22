@@ -6,11 +6,25 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:14:21 by chon              #+#    #+#             */
-/*   Updated: 2024/07/16 12:32:43 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/22 14:34:09 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+size_t	sum_num_arr(size_t *arr)
+{
+	int		count;
+	int		i;
+	size_t	sum;
+
+	count = sizeof(*arr) / sizeof(size_t);
+	i = -1;
+	sum = 0;
+	while (++i < count)
+		sum += arr[i];
+	return (sum);
+}
 
 size_t	cur_time()
 {
@@ -27,7 +41,7 @@ int	ft_usleep(size_t msec)
 
 	start = cur_time();
 	while ((cur_time() - start) < msec)
-		usleep(1);
+		usleep(500);
 	return (0);
 }
 

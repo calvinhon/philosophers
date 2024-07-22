@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/07/16 13:47:41 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/22 14:31:07 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,24 +34,26 @@ typedef struct	s_philo
 {
 	size_t			p_index;
 	size_t			last_meal;
-	size_t			times_ate;
-	bool			*p_forks;
-	pthread_mutex_t	*forks_lock;
 	t_params		args;
 	bool			eating;
 	bool			sleeping;
 	bool			thinking;
-	bool			dead;
 	size_t			start_time;
 	size_t			philo_ct;
+	size_t			*p_times_ate;
+	bool			*p_forks;
+	size_t			*p_dead;
+	pthread_mutex_t	*forks_lock;
 }	t_philo;
 
 typedef struct	s_setup
 {
 	pthread_t 	*threads;
+	size_t		*times_ate;
 	bool		*forks;
-	size_t		philo_ct;
-	size_t		i;
+	size_t		*dead;
+	int			philo_ct;
+	int			i;
 }	t_setup;
 
 size_t	ft_atoi(char *str);
@@ -60,5 +62,6 @@ int		ft_usleep(size_t msec);
 size_t	cur_time();
 void    free_all(t_setup *s, t_philo *p);
 void	*routine(void *arg);
+size_t	sum_num_arr(size_t *arr);
 
 #endif

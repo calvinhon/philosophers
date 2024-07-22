@@ -11,8 +11,7 @@
 # **************************************************************************** #
 
 NAME = philo
-CFLAGS = -Wall -Werror -Wextra -pthread 
-# -g3 -fsanitize=address
+CFLAGS = -Wall -Werror -Wextra -pthread -g3 -fsanitize=address
 OBJS = $(SRCS:.c=.o)
 SRCS = main.c routine.c utils.c free.c
 

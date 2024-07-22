@@ -44,6 +44,8 @@ typedef struct	s_philo
 	bool			*p_forks;
 	size_t			*p_dead;
 	pthread_mutex_t	*forks_lock;
+	pthread_mutex_t	*times_ate_lock;
+	pthread_mutex_t	*dead_lock;
 }	t_philo;
 
 typedef struct	s_setup

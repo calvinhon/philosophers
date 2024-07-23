@@ -131,7 +131,7 @@ int main(int ac, char **av)
         //         break ;
         //     }
         //     pthread_mutex_unlock(&p->dead_lock);
-		// 	ft_usleep(1)
+		// 	ft_usleep(1);
         // }
 		s->i = -1;
 		while (++s->i < s->philo_ct)

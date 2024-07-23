@@ -26,17 +26,36 @@ int	check_death(t_philo *p)
 
 int	forks_state(t_philo *p, char mode)
 {
+	size_t	r_fork;
+	size_t	l_fork;
+
+	r_fork = p->p_index - 1;
+	l_fork = p->p_index % p->philo_ct;
 	if (mode == 'b')
 	{
-		if (p->p_forks[p->p_index - 1] && p->p_forks[p->p_index % p->philo_ct])
+		// pthread_mutex_lock(&p->forks_lock[r_fork]);
+		// pthread_mutex_lock(&p->forks_lock[l_fork]);
+		if (p->p_forks[r_fork] || p->p_forks[l_fork])
+		{
+			// pthread_mutex_unlock(&p->forks_lock[r_fork]);
+			// pthread_mutex_unlock(&p->forks_lock[l_fork]);
 			return ('i');
+		}
 		else
+		{
+			// pthread_mutex_unlock(&p->forks_lock[r_fork]);
+			// pthread_mutex_unlock(&p->forks_lock[l_fork]);
 			return ('f');
+		}
 	}
 	if (mode == 'r')
 	{
-		p->p_forks[p->p_index - 1] = 0;
-		p->p_forks[p->p_index % p->philo_ct] = 0;
+		// pthread_mutex_lock(&p->forks_lock[r_fork]);
+		p->p_forks[r_fork] = 0;
+		// pthread_mutex_unlock(&p->forks_lock[r_fork]);
+		// pthread_mutex_lock(&p->forks_lock[l_fork]);
+		p->p_forks[l_fork] = 0;
+		// pthread_mutex_unlock(&p->forks_lock[l_fork]);
 		return (1);
 	}
 	return (0);
@@ -54,6 +73,8 @@ void	print_state(char state, t_philo *p)
 		printf("%zu %zu is eating\n", time_stamp, p->p_index);
 		p->last_meal = cur_time();
 		ft_usleep(p->args.time_to_eat);
+		if (check_death(p))
+			return ;
 		forks_state(p, 'r');
 	}
 	if (state == 's')
@@ -108,9 +129,9 @@ void	*routine(void *arg)
 	if (p->p_index % 2 && !(p->philo_ct > 1 && p->p_index == p->philo_ct))
 	{
 		use_forks(p);
-		print_state('d', p);
 		if (check_death(p))
 			return (NULL);
+		print_state('d', p);
 	}
 	else
 		ft_usleep(p->args.time_to_eat);
@@ -131,6 +152,8 @@ void	*routine(void *arg)
 			if (forks_state(p, 'b') == 'i')
 				print_state('t', p);
 		}
+		// else
+		// 	print_state('t', p);
 	}
 	// printf("time to die:%zu\n", p->args.time_to_die);
 	// printf("cur:%zu start:%zu diff:%zu\n", cur_time(), p->start_time, p->last_meal);

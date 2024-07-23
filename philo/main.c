@@ -6,16 +6,16 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/07/22 17:05:33 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/23 12:11:53 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	fill_args(char **av, t_setup *s, t_philo *p)
+void	fill_args(char **av, t_setup *s, t_philo *p, size_t time_now)
 {
 	p->p_index = s->i + 1;
-	p->philo_ct = s->philo_ct;
+	p->last_meal = time_now;
 	p->p_times_ate = s->times_ate;
 	p->p_forks = s->forks;
 	p->p_dead = s->dead;
@@ -28,42 +28,33 @@ void	fill_args(char **av, t_setup *s, t_philo *p)
 	p->eating = 0;
 	p->sleeping = 0;
 	p->thinking = 0;
+	p->start_time = time_now;
+	p->philo_ct = s->philo_ct;
+	p->forks_lock = s->lock_for_forks;
+	p->times_ate_lock = s->lock_for_times_ate;
+	pthread_mutex_init(&p->dead_lock, NULL);
 }
 
 int	fill_p_data(char **av, t_setup *s, t_philo *p)
 {
-	pthread_mutex_t	*lock_for_forks;
-	pthread_mutex_t	*lock_for_times_ate;
-	pthread_mutex_t	*lock_for_dead;
 	size_t			time_now;
 
-	lock_for_forks = malloc(sizeof(pthread_mutex_t) * s->philo_ct);
-	if (!lock_for_forks)
+	s->lock_for_forks = malloc(sizeof(pthread_mutex_t) * s->philo_ct);
+	if (!s->lock_for_forks)
 		return (ft_error("fork mutex array malloc failed\n", s, p, 0));
-	lock_for_times_ate = malloc(sizeof(pthread_mutex_t) * s->philo_ct);
-	if (!lock_for_times_ate)
+	s->lock_for_times_ate = malloc(sizeof(pthread_mutex_t) * s->philo_ct);
+	if (!s->lock_for_times_ate)
 		return (ft_error("times ate mutex array malloc failed\n", s, p, 0));
-	lock_for_dead = malloc(sizeof(pthread_mutex_t) * s->philo_ct);
-	if (!lock_for_dead)
-		return (ft_error("dead mutex array malloc failed\n", s, p, 0));
 	s->i = -1;
 	while (++s->i < s->philo_ct)
 	{
-		pthread_mutex_init(&lock_for_forks[s->i], NULL);
-		pthread_mutex_init(&lock_for_times_ate[s->i], NULL);
-		pthread_mutex_init(&lock_for_dead[s->i], NULL);
+		pthread_mutex_init(&s->lock_for_forks[s->i], NULL);
+		pthread_mutex_init(&s->lock_for_times_ate[s->i], NULL);
 	}
 	s->i = -1;
 	time_now = cur_time();
 	while (++s->i < s->philo_ct)
-	{
-		fill_args(av, s, &p[s->i]);
-		p[s->i].last_meal = time_now;
-		p[s->i].start_time = time_now;
-		p[s->i].forks_lock = lock_for_forks;
-		p[s->i].times_ate_lock = lock_for_forks;
-		p[s->i].dead_lock = lock_for_forks;
-	}
+		fill_args(av, s, &p[s->i], time_now);
 	return (1);
 }
 
@@ -84,10 +75,10 @@ int	init_args(char **av, t_setup **s, t_philo **p)
 	if (!(*s)->forks)
 		return (ft_error("fork array malloc failed\n", *s, *p, 0));
 	memset((*s)->forks, 0, sizeof(bool) * (*s)->philo_ct);
-	(*s)->dead = malloc(sizeof(size_t) * (*s)->philo_ct);
+	(*s)->dead = malloc(sizeof(bool));
 	if (!(*s)->dead)
-		return (ft_error("dead array malloc failed\n", *s, *p, 0));
-	memset((*s)->dead, 0, sizeof(size_t) * (*s)->philo_ct);
+		return (ft_error("dead indicator malloc failed\n", *s, *p, 0));
+	(*s)->dead[0] = 0;
 	*p = malloc(sizeof(t_philo) * (*s)->philo_ct);
 	if (!(*p))
 		return (ft_error("philo array malloc failed\n", *s, *p, 0));

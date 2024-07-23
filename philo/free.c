@@ -11,9 +11,7 @@ void	free_all(t_setup *s, t_philo *p)
 		pthread_mutex_destroy(&p->times_ate_lock[s->i]);
 	free(p->times_ate_lock);
 	s->i = -1;
-	while (++s->i < s->philo_ct)
-		pthread_mutex_destroy(&p->dead_lock[s->i]);
-	free(p->dead_lock);
+	pthread_mutex_destroy(&p->dead_lock);
 	free(s->threads);
 	free(s->times_ate);
 	free(s->forks);

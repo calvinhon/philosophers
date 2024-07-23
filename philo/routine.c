@@ -16,11 +16,7 @@ int	forks_state(t_philo *p, char mode)
 {
 	if (mode == 'b')
 	{
-		// printf("rfork:%i lfork:%i\n", p->p_forks[p->p_index - 1], p->p_forks[p->p_index]);
-		// printf("rfork:%i lfork:%i\n", p->p_forks[p->p_index - 1], p->p_forks[0]);
-		if (p->p_forks[p->p_index - 1]
-			&& ((p->p_index == p->philo_ct && p->p_forks[0])
-			|| p->p_forks[p->p_index]))
+		if (p->p_forks[p->p_index - 1] && p->p_forks[p->p_index % p->philo_ct])
 			return ('i');
 		else
 			return ('f');
@@ -28,10 +24,7 @@ int	forks_state(t_philo *p, char mode)
 	if (mode == 'r')
 	{
 		p->p_forks[p->p_index - 1] = 0;
-		if (p->p_index == p->philo_ct)
-			p->p_forks[0] = 0;
-		else
-			p->p_forks[p->p_index] = 0;
+		p->p_forks[p->p_index % p->philo_ct] = 0;
 		return (1);
 	}
 	return (0);
@@ -50,6 +43,9 @@ void	print_state(char state, t_philo *p)
 		p->last_meal = cur_time();
 		ft_usleep(p->args.time_to_eat);
 		forks_state(p, 'r');
+	}
+	if (state == 's')
+	{
 		printf("%zu %zu is sleeping\n", cur_time() - p->start_time, p->p_index);
 		ft_usleep(p->args.time_to_sleep);
 	}
@@ -57,28 +53,35 @@ void	print_state(char state, t_philo *p)
 		printf("%zu %zu is thinking\n", time_stamp, p->p_index);
 	if (state == 'd' && cur_time() - p->last_meal >= p->args.time_to_die)
 	{
-		printf("%zu %zu is dead\n", time_stamp, p->p_index);
-		p->p_dead[p->p_index - 1] = 1;
+		printf("%zu %zu died\n", time_stamp, p->p_index);
+		pthread_mutex_lock(&p->dead_lock);
+		p->p_dead[0] = 1;
+		pthread_mutex_unlock(&p->dead_lock);
 	}
 }
 
 void	use_forks(t_philo *p)
 {
-	pthread_mutex_lock(&p->forks_lock[p->p_index - 1]);
-	p->p_forks[p->p_index - 1] = 1;
+	size_t	r_fork;
+	size_t	l_fork;
+
+	r_fork = p->p_index - 1;
+	l_fork = p->p_index % p->philo_ct;
+	// printf("rfork:%zu lfork:%zu\n", r_fork, l_fork);
+	pthread_mutex_lock(&p->forks_lock[r_fork]);
+	p->p_forks[r_fork] = 1;
 	print_state('f', p);
 	if (p->philo_ct > 1)
 	{
-		if (p->p_index == p->philo_ct)
-			p->p_forks[0] = 1;
-		else
-			p->p_forks[p->p_index] = 1;
+		pthread_mutex_lock(&p->forks_lock[l_fork]);
+		p->p_forks[l_fork] = 1;
 		print_state('f', p);
-		// print_state('d', p);
-		// if (!p->p_dead[p->p_index - 1])
 		print_state('e', p);
+		pthread_mutex_unlock(&p->forks_lock[l_fork]);
 	}
-	pthread_mutex_unlock(&p->forks_lock[p->p_index - 1]);
+	pthread_mutex_unlock(&p->forks_lock[r_fork]);
+	if (p->philo_ct > 1)
+		print_state('s', p);
 }
 
 void	*routine(void *arg)
@@ -87,26 +90,28 @@ void	*routine(void *arg)
 
 	p = (t_philo *)arg;
 	if (p->p_index % 2 && !(p->philo_ct > 1 && p->p_index == p->philo_ct))
-		use_forks(p);
-	if (p->philo_ct == 1)
 	{
-		ft_usleep(p->args.time_to_die);
+		use_forks(p);
 		print_state('d', p);
-		return (NULL);
+		if (p->p_dead[0])
+			return (NULL);
 	}
-	while (!sum_num_arr(p->p_dead))
+	else
+		ft_usleep(p->args.time_to_eat);
+	while (!p->p_dead[0])
 	{
 		// printf("%zu: %c\n", p->p_index, forks_state(p, 'b'));
+		print_state('d', p);
+		if (p->p_dead[0])
+			return (NULL);
 		if (forks_state(p, 'b') == 'f')
 		{
 			use_forks(p);
 			print_state('d', p);
-			if (p->p_dead[p->p_index - 1])
+			if (p->p_dead[0])
 				return (NULL);
+			print_state('t', p);
 		}
-		else
-			ft_usleep(p->args.time_to_eat);
-		// print_state('d', p);
 	}
 	// printf("time to die:%zu\n", p->args.time_to_die);
 	// printf("cur:%zu start:%zu diff:%zu\n", cur_time(), p->start_time, p->last_meal);

@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/07/23 12:11:53 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/23 14:45:38 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,17 @@ int main(int ac, char **av)
 			if (pthread_create(&s->threads[s->i], NULL,
 				(void *)&routine, (void *)&p[s->i]))
 				printf("thread creation failed\n");
+		// while (1)
+        // {
+        //     pthread_mutex_lock(&p->dead_lock);
+        //     if (p->p_dead[0])
+        //     {
+        //         pthread_mutex_unlock(&p->dead_lock);
+        //         break ;
+        //     }
+        //     pthread_mutex_unlock(&p->dead_lock);
+		// 	ft_usleep(1)
+        // }
 		s->i = -1;
 		while (++s->i < s->philo_ct)
 			if (pthread_join(s->threads[s->i], NULL))

@@ -6,23 +6,23 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/07/23 12:09:50 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/23 13:29:31 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <pthread.h>
-#include <time.h>
-#include <sys/time.h>
-#include <stdbool.h>
+# include <unistd.h>
+# include <stdlib.h>
+# include <stdio.h>
+# include <string.h>
+# include <pthread.h>
+# include <time.h>
+# include <sys/time.h>
+# include <stdbool.h>
 
-typedef struct	s_params
+typedef struct s_params
 {
 	size_t		time_to_die;
 	size_t		time_to_eat;
@@ -30,7 +30,7 @@ typedef struct	s_params
 	int			num_times_philo_must_eat;
 }	t_params;
 
-typedef struct	s_philo
+typedef struct s_philo
 {
 	size_t			p_index;
 	size_t			last_meal;
@@ -48,9 +48,9 @@ typedef struct	s_philo
 	pthread_mutex_t	dead_lock;
 }	t_philo;
 
-typedef struct	s_setup
+typedef struct s_setup
 {
-	pthread_t 		*threads;
+	pthread_t		*threads;
 	size_t			*times_ate;
 	bool			*forks;
 	bool			*dead;
@@ -63,8 +63,8 @@ typedef struct	s_setup
 size_t	ft_atoi(char *str);
 int		ft_error(char *str, t_setup *s, t_philo *p, int num);
 int		ft_usleep(size_t msec);
-size_t	cur_time();
-void    free_all(t_setup *s, t_philo *p);
+size_t	cur_time(void);
+void	free_all(t_setup *s, t_philo *p);
 void	*routine(void *arg);
 size_t	sum_num_arr(size_t *arr);
 

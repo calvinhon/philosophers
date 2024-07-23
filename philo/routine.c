@@ -12,6 +12,18 @@
 
 #include "philo.h"
 
+int	check_death(t_philo *p)
+{
+	pthread_mutex_lock(&p->dead_lock);
+	if (p->p_dead[0])
+	{
+		pthread_mutex_unlock(&p->dead_lock);
+		return (1);
+	}
+	pthread_mutex_unlock(&p->dead_lock);
+	return (0);
+}
+
 int	forks_state(t_philo *p, char mode)
 {
 	if (mode == 'b')
@@ -81,7 +93,11 @@ void	use_forks(t_philo *p)
 	}
 	pthread_mutex_unlock(&p->forks_lock[r_fork]);
 	if (p->philo_ct > 1)
+	{
+		if (check_death(p))
+			return ;
 		print_state('s', p);
+	}
 }
 
 void	*routine(void *arg)
@@ -93,24 +109,27 @@ void	*routine(void *arg)
 	{
 		use_forks(p);
 		print_state('d', p);
-		if (p->p_dead[0])
+		if (check_death(p))
 			return (NULL);
 	}
 	else
 		ft_usleep(p->args.time_to_eat);
-	while (!p->p_dead[0])
+	while (1)
 	{
 		// printf("%zu: %c\n", p->p_index, forks_state(p, 'b'));
+		if (check_death(p))
+			return (NULL);
 		print_state('d', p);
-		if (p->p_dead[0])
+		if (check_death(p))
 			return (NULL);
 		if (forks_state(p, 'b') == 'f')
 		{
 			use_forks(p);
 			print_state('d', p);
-			if (p->p_dead[0])
+			if (check_death(p))
 				return (NULL);
-			print_state('t', p);
+			if (forks_state(p, 'b') == 'i')
+				print_state('t', p);
 		}
 	}
 	// printf("time to die:%zu\n", p->args.time_to_die);

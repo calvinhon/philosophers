@@ -4,7 +4,10 @@ void	free_all(t_setup *s, t_philo *p)
 {
 	s->i = -1;
 	while (++s->i < s->philo_ct)
+	{
 		pthread_mutex_destroy(&p->forks_lock[s->i]);
+		pthread_mutex_destroy(&p->print_lock);
+	}
 	free(p->forks_lock);
 	s->i = -1;
 	while (++s->i < s->philo_ct)

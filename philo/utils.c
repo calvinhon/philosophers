@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:14:21 by chon              #+#    #+#             */
-/*   Updated: 2024/07/22 14:34:09 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/24 12:15:08 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,10 @@ size_t	cur_time()
 	struct	timeval	time;
 
 	if (gettimeofday(&time, NULL) < 0)
+	{
 		printf("gettimeofday error\n");
+		return (0);
+	}
 	return (time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 

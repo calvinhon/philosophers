@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/07/23 13:29:31 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/24 14:48:05 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,19 +43,24 @@ typedef struct s_philo
 	size_t			*p_times_ate;
 	bool			*p_forks;
 	bool			*p_dead;
+	bool			*p_end_threads;
 	pthread_mutex_t	*forks_lock;
 	pthread_mutex_t	*times_ate_lock;
 	pthread_mutex_t	dead_lock;
+	pthread_mutex_t	print_lock;
 }	t_philo;
 
 typedef struct s_setup
 {
 	pthread_t		*threads;
+	pthread_t		monitor_th;
 	size_t			*times_ate;
 	bool			*forks;
 	bool			*dead;
 	int				philo_ct;
 	int				i;
+	bool			end_threads;
+	pthread_mutex_t	dead_lock;
 	pthread_mutex_t	*lock_for_forks;
 	pthread_mutex_t	*lock_for_times_ate;
 }	t_setup;
@@ -67,5 +72,8 @@ size_t	cur_time(void);
 void	free_all(t_setup *s, t_philo *p);
 void	*routine(void *arg);
 size_t	sum_num_arr(size_t *arr);
+void	philo_state(t_philo *p, int state);
+void	*monitor(void *arg);
+int		check_death(t_philo *p);
 
 #endif

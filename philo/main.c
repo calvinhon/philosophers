@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/07/23 14:45:38 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/24 14:28:09 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ void	fill_args(char **av, t_setup *s, t_philo *p, size_t time_now)
 	p->p_times_ate = s->times_ate;
 	p->p_forks = s->forks;
 	p->p_dead = s->dead;
+	p->p_end_threads = &s->end_threads;
 	p->args.time_to_die = ft_atoi(av[2]);
 	p->args.time_to_eat = ft_atoi(av[3]);
 	p->args.time_to_sleep = ft_atoi(av[4]);
@@ -32,7 +33,8 @@ void	fill_args(char **av, t_setup *s, t_philo *p, size_t time_now)
 	p->philo_ct = s->philo_ct;
 	p->forks_lock = s->lock_for_forks;
 	p->times_ate_lock = s->lock_for_times_ate;
-	pthread_mutex_init(&p->dead_lock, NULL);
+	p->dead_lock = s->dead_lock;
+	pthread_mutex_init(&p->print_lock, NULL);
 }
 
 int	fill_p_data(char **av, t_setup *s, t_philo *p)
@@ -79,6 +81,8 @@ int	init_args(char **av, t_setup **s, t_philo **p)
 	if (!(*s)->dead)
 		return (ft_error("dead indicator malloc failed\n", *s, *p, 0));
 	(*s)->dead[0] = 0;
+	pthread_mutex_init(&(*s)->dead_lock, NULL);
+	(*s)->end_threads = 0;
 	*p = malloc(sizeof(t_philo) * (*s)->philo_ct);
 	if (!(*p))
 		return (ft_error("philo array malloc failed\n", *s, *p, 0));
@@ -122,21 +126,12 @@ int main(int ac, char **av)
 			if (pthread_create(&s->threads[s->i], NULL,
 				(void *)&routine, (void *)&p[s->i]))
 				printf("thread creation failed\n");
-		// while (1)
-        // {
-        //     pthread_mutex_lock(&p->dead_lock);
-        //     if (p->p_dead[0])
-        //     {
-        //         pthread_mutex_unlock(&p->dead_lock);
-        //         break ;
-        //     }
-        //     pthread_mutex_unlock(&p->dead_lock);
-		// 	ft_usleep(1);
-        // }
+		pthread_create(&s->monitor_th, NULL, (void *)&monitor, (void *)s);
 		s->i = -1;
 		while (++s->i < s->philo_ct)
 			if (pthread_join(s->threads[s->i], NULL))
 				printf("thread join failed\n");
+		pthread_join(s->monitor_th, NULL);
 		free_all(s, p);
 		// printf("philo_ct:%zu\n", s->i);
 	}

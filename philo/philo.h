@@ -35,19 +35,15 @@ typedef struct s_philo
 	size_t			p_index;
 	size_t			last_meal;
 	t_params		args;
-	bool			eating;
-	bool			sleeping;
-	bool			thinking;
 	size_t			start_time;
 	size_t			philo_ct;
 	size_t			*p_times_ate;
-	bool			*p_forks;
 	bool			*p_dead;
 	bool			*p_end_threads;
 	pthread_mutex_t	*forks_lock;
 	pthread_mutex_t	*times_ate_lock;
-	pthread_mutex_t	dead_lock;
-	pthread_mutex_t	print_lock;
+	pthread_mutex_t	*p_dead_lock;
+	pthread_mutex_t	*p_print_lock;
 }	t_philo;
 
 typedef struct s_setup
@@ -55,14 +51,14 @@ typedef struct s_setup
 	pthread_t		*threads;
 	pthread_t		monitor_th;
 	size_t			*times_ate;
-	bool			*forks;
-	bool			*dead;
+	bool			dead_flag;
 	int				philo_ct;
 	int				i;
 	bool			end_threads;
-	pthread_mutex_t	dead_lock;
 	pthread_mutex_t	*lock_for_forks;
 	pthread_mutex_t	*lock_for_times_ate;
+	pthread_mutex_t	dead_lock;
+	pthread_mutex_t	print_lock;
 }	t_setup;
 
 size_t	ft_atoi(char *str);

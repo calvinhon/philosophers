@@ -17,8 +17,7 @@ void	fill_args(char **av, t_setup *s, t_philo *p, size_t time_now)
 	p->p_index = s->i + 1;
 	p->last_meal = time_now;
 	p->p_times_ate = s->times_ate;
-	p->p_forks = s->forks;
-	p->p_dead = s->dead;
+	p->p_dead = &s->dead_flag;
 	p->p_end_threads = &s->end_threads;
 	p->args.time_to_die = ft_atoi(av[2]);
 	p->args.time_to_eat = ft_atoi(av[3]);
@@ -26,20 +25,17 @@ void	fill_args(char **av, t_setup *s, t_philo *p, size_t time_now)
 	p->args.num_times_philo_must_eat = -1;
 	if (av[5])
 		p->args.num_times_philo_must_eat = ft_atoi(av[5]);
-	p->eating = 0;
-	p->sleeping = 0;
-	p->thinking = 0;
 	p->start_time = time_now;
 	p->philo_ct = s->philo_ct;
 	p->forks_lock = s->lock_for_forks;
 	p->times_ate_lock = s->lock_for_times_ate;
-	p->dead_lock = s->dead_lock;
-	pthread_mutex_init(&p->print_lock, NULL);
+	p->p_dead_lock = &s->dead_lock;
+	p->p_print_lock = &s->print_lock;
 }
 
 int	fill_p_data(char **av, t_setup *s, t_philo *p)
 {
-	size_t			time_now;
+	size_t	time_now;
 
 	s->lock_for_forks = malloc(sizeof(pthread_mutex_t) * s->philo_ct);
 	if (!s->lock_for_forks)
@@ -73,15 +69,9 @@ int	init_args(char **av, t_setup **s, t_philo **p)
 	if (!(*s)->times_ate)
 		return (ft_error("times ate array malloc failed\n", *s, *p, 0));
 	memset((*s)->times_ate, 0, sizeof(size_t) * (*s)->philo_ct);
-	(*s)->forks = malloc(sizeof(bool) * (*s)->philo_ct);
-	if (!(*s)->forks)
-		return (ft_error("fork array malloc failed\n", *s, *p, 0));
-	memset((*s)->forks, 0, sizeof(bool) * (*s)->philo_ct);
-	(*s)->dead = malloc(sizeof(bool));
-	if (!(*s)->dead)
-		return (ft_error("dead indicator malloc failed\n", *s, *p, 0));
-	(*s)->dead[0] = 0;
+	(*s)->dead_flag = 0;
 	pthread_mutex_init(&(*s)->dead_lock, NULL);
+	pthread_mutex_init(&(*s)->print_lock, NULL);
 	(*s)->end_threads = 0;
 	*p = malloc(sizeof(t_philo) * (*s)->philo_ct);
 	if (!(*p))

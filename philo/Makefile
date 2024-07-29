@@ -6,13 +6,14 @@
 #    By: chon <chon@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/16 09:15:53 by chon              #+#    #+#              #
-#    Updated: 2024/07/24 11:49:33 by chon             ###   ########.fr        #
+#    Updated: 2024/07/29 16:10:48 by chon             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
+CFLAGS = -Wall -Werror -Wextra -pthread
 # CFLAGS = -Wall -Werror -Wextra -pthread -g3 -fsanitize=thread
-CFLAGS = -Wall -Werror -Wextra -pthread -g3 -fsanitize=address 
+# CFLAGS = -Wall -Werror -Wextra -pthread -g3 -fsanitize=address 
 OBJS = $(SRCS:.c=.o)
 SRCS = main.c routine.c routine_utils.c utils.c free.c
 

@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/07/24 14:28:09 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/29 15:53:14 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@ void	fill_args(char **av, t_setup *s, t_philo *p, size_t time_now)
 	p->p_index = s->i + 1;
 	p->last_meal = time_now;
 	p->p_times_ate = s->times_ate;
-	p->p_dead = &s->dead_flag;
 	p->p_end_threads = &s->end_threads;
 	p->args.time_to_die = ft_atoi(av[2]);
 	p->args.time_to_eat = ft_atoi(av[3]);
@@ -27,9 +26,10 @@ void	fill_args(char **av, t_setup *s, t_philo *p, size_t time_now)
 		p->args.num_times_philo_must_eat = ft_atoi(av[5]);
 	p->start_time = time_now;
 	p->philo_ct = s->philo_ct;
-	p->forks_lock = s->lock_for_forks;
-	p->times_ate_lock = s->lock_for_times_ate;
+	p->forks_lock = s->forks_lock;
+	p->times_ate_lock = &s->times_ate_lock;
 	p->p_dead_lock = &s->dead_lock;
+	p->p_meal_lock = &s->meal_lock;
 	p->p_print_lock = &s->print_lock;
 }
 
@@ -37,22 +37,17 @@ int	fill_p_data(char **av, t_setup *s, t_philo *p)
 {
 	size_t	time_now;
 
-	s->lock_for_forks = malloc(sizeof(pthread_mutex_t) * s->philo_ct);
-	if (!s->lock_for_forks)
+	s->forks_lock = malloc(sizeof(pthread_mutex_t) * s->philo_ct);
+	if (!s->forks_lock)
 		return (ft_error("fork mutex array malloc failed\n", s, p, 0));
-	s->lock_for_times_ate = malloc(sizeof(pthread_mutex_t) * s->philo_ct);
-	if (!s->lock_for_times_ate)
-		return (ft_error("times ate mutex array malloc failed\n", s, p, 0));
 	s->i = -1;
 	while (++s->i < s->philo_ct)
-	{
-		pthread_mutex_init(&s->lock_for_forks[s->i], NULL);
-		pthread_mutex_init(&s->lock_for_times_ate[s->i], NULL);
-	}
+		pthread_mutex_init(&s->forks_lock[s->i], NULL);
 	s->i = -1;
 	time_now = cur_time();
 	while (++s->i < s->philo_ct)
 		fill_args(av, s, &p[s->i], time_now);
+	s->p = p;
 	return (1);
 }
 
@@ -69,8 +64,9 @@ int	init_args(char **av, t_setup **s, t_philo **p)
 	if (!(*s)->times_ate)
 		return (ft_error("times ate array malloc failed\n", *s, *p, 0));
 	memset((*s)->times_ate, 0, sizeof(size_t) * (*s)->philo_ct);
-	(*s)->dead_flag = 0;
+	pthread_mutex_init(&(*s)->times_ate_lock, NULL);
 	pthread_mutex_init(&(*s)->dead_lock, NULL);
+	pthread_mutex_init(&(*s)->meal_lock, NULL);
 	pthread_mutex_init(&(*s)->print_lock, NULL);
 	(*s)->end_threads = 0;
 	*p = malloc(sizeof(t_philo) * (*s)->philo_ct);
@@ -108,8 +104,8 @@ int main(int ac, char **av)
 	p = NULL;
 	if (ac > 4 && ac < 7 && parse(av))
 	{
-		if (!init_args(av, &s, &p) || s->philo_ct > 200)
-			return (ft_error("malloc failed or philo_ct > 200\n", s, p, 0));
+		if (!init_args(av, &s, &p) || s->philo_ct > 200 || !s->philo_ct)
+			return (ft_error("malloc failed or invalid p_ct", s, p, 0));
 		s->i = -1;
 		while (++s->i < s->philo_ct)
 			if (pthread_create(&s->threads[s->i], NULL,

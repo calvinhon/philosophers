@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/07/24 14:48:05 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/29 15:52:30 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,11 +38,11 @@ typedef struct s_philo
 	size_t			start_time;
 	size_t			philo_ct;
 	size_t			*p_times_ate;
-	bool			*p_dead;
 	bool			*p_end_threads;
 	pthread_mutex_t	*forks_lock;
 	pthread_mutex_t	*times_ate_lock;
 	pthread_mutex_t	*p_dead_lock;
+	pthread_mutex_t	*p_meal_lock;
 	pthread_mutex_t	*p_print_lock;
 }	t_philo;
 
@@ -51,15 +51,15 @@ typedef struct s_setup
 	pthread_t		*threads;
 	pthread_t		monitor_th;
 	size_t			*times_ate;
-	bool			dead_flag;
 	int				philo_ct;
 	int				i;
 	bool			end_threads;
-	pthread_mutex_t	*lock_for_forks;
-	pthread_mutex_t	*lock_for_times_ate;
+	pthread_mutex_t	*forks_lock;
+	pthread_mutex_t	times_ate_lock;
 	pthread_mutex_t	dead_lock;
-	pthread_mutex_t	*p_dead_lock;
+	pthread_mutex_t	meal_lock;
 	pthread_mutex_t	print_lock;
+	t_philo			*p;
 }	t_setup;
 
 size_t	ft_atoi(char *str);

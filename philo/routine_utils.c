@@ -16,20 +16,20 @@ int	check_death(t_philo *p)
 {
 	size_t	time_now;
 
-	pthread_mutex_lock(p->p_dead_lock);
 	time_now = cur_time();
+	pthread_mutex_lock(p->p_dead_lock);
+	// printf("end thread:%u\n", *p->p_end_threads);
 	if (*p->p_end_threads)
 	{
 		pthread_mutex_unlock(p->p_dead_lock);
 		return (1);
 	}
-	if (time_now - p->last_meal >= p->args.time_to_die)
+	if (!(*p->p_dead) && time_now - p->last_meal >= p->args.time_to_die)
 	{
 		*p->p_dead = 1;
-		pthread_mutex_unlock(p->p_dead_lock);
-		pthread_mutex_lock(p->p_print_lock);
 		printf("%zu %zu died\n", time_now - p->start_time, p->p_index);
-		pthread_mutex_unlock(p->p_print_lock);
+		// printf("hits:p\n");
+		pthread_mutex_unlock(p->p_dead_lock);
 		return (1);
 	}
 	pthread_mutex_unlock(p->p_dead_lock);

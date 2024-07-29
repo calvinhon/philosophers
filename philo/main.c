@@ -111,7 +111,6 @@ int main(int ac, char **av)
 		if (!init_args(av, &s, &p) || s->philo_ct > 200)
 			return (ft_error("malloc failed or philo_ct > 200\n", s, p, 0));
 		s->i = -1;
-		// printf("%zu\n", p[0].p_index);
 		while (++s->i < s->philo_ct)
 			if (pthread_create(&s->threads[s->i], NULL,
 				(void *)&routine, (void *)&p[s->i]))
@@ -123,7 +122,6 @@ int main(int ac, char **av)
 				printf("thread join failed\n");
 		pthread_join(s->monitor_th, NULL);
 		free_all(s, p);
-		// printf("philo_ct:%zu\n", s->i);
 	}
 	return (0);
 }

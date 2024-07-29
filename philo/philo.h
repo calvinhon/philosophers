@@ -58,6 +58,7 @@ typedef struct s_setup
 	pthread_mutex_t	*lock_for_forks;
 	pthread_mutex_t	*lock_for_times_ate;
 	pthread_mutex_t	dead_lock;
+	pthread_mutex_t	*p_dead_lock;
 	pthread_mutex_t	print_lock;
 }	t_setup;
 

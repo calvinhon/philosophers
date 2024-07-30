@@ -92,7 +92,7 @@ void	*routine(void *arg)
 
 	p = (t_philo *)arg;
 	if (!(p->p_index % 2) || (p->philo_ct > 1 && p->p_index == p->philo_ct))
-		ft_usleep(10);
+		ft_usleep(p->args.time_to_eat);
 	while (1)
 	{
 		if (check_death(p))

@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/07/29 15:52:30 by chon             ###   ########.fr       */
+/*   Updated: 2024/07/30 12:49:53 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,43 +22,28 @@
 # include <sys/time.h>
 # include <stdbool.h>
 
-typedef struct s_params
-{
-	size_t		time_to_die;
-	size_t		time_to_eat;
-	size_t		time_to_sleep;
-	int			num_times_philo_must_eat;
-}	t_params;
-
 typedef struct s_philo
 {
 	size_t			p_index;
 	size_t			last_meal;
-	t_params		args;
-	size_t			start_time;
-	size_t			philo_ct;
-	size_t			*p_times_ate;
-	bool			*p_end_threads;
+	size_t			times_ate;
 	pthread_mutex_t	*forks_lock;
-	pthread_mutex_t	*times_ate_lock;
-	pthread_mutex_t	*p_dead_lock;
-	pthread_mutex_t	*p_meal_lock;
-	pthread_mutex_t	*p_print_lock;
+	t_setup			*s;
 }	t_philo;
 
 typedef struct s_setup
 {
 	pthread_t		*threads;
-	pthread_t		monitor_th;
-	size_t			*times_ate;
 	int				philo_ct;
+	size_t			time_to_die;
+	size_t			time_to_eat;
+	size_t			time_to_sleep;
+	int				num_times_philo_must_eat;
+	size_t			start_time;
 	int				i;
 	bool			end_threads;
 	pthread_mutex_t	*forks_lock;
-	pthread_mutex_t	times_ate_lock;
-	pthread_mutex_t	dead_lock;
-	pthread_mutex_t	meal_lock;
-	pthread_mutex_t	print_lock;
+	pthread_mutex_t	lock;
 	t_philo			*p;
 }	t_setup;
 

@@ -64,12 +64,10 @@ void	use_forks(t_philo *p)
 	pthread_mutex_unlock(&p->forks_lock[r_fork]);
 }
 
-void	*monitor(void *arg)
+bool	monitor(t_setup *s)
 {
-	t_setup *s;
 	int		i;
 
-	s = (t_setup *)arg;
 	i = -1;
 	while (1)
 	{
@@ -80,10 +78,10 @@ void	*monitor(void *arg)
 			pthread_mutex_lock(s->p->p_dead_lock);
 			s->end_threads = 1;
 			pthread_mutex_unlock(s->p->p_dead_lock);
-			return (NULL);
+			return (0);
 		}
 	}
-	return (NULL);
+	return (0);
 }
 
 void	*routine(void *arg)

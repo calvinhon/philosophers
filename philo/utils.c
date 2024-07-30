@@ -44,25 +44,18 @@ int	ft_usleep(size_t msec)
 
 	start = cur_time();
 	while ((cur_time() - start) < msec)
-		usleep(500);
+		usleep(300);
 	return (0);
 }
 
-size_t	ft_atoi(char *str)
+int	ft_atoi(char *str)
 {
-	size_t	num;
-	int		i;
+	int	num;
+	int	i;
 
 	num = 0;
 	i = -1;
 	while (str[++i])
 		num = num * 10 + str[i] - '0'; 
-	return (num);
-}
-
-int	ft_error(char *str, t_setup *s, t_philo *p, int num)
-{
-	printf("%s\n", str);
-	free_all(s, p);
 	return (num);
 }

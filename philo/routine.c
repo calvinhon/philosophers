@@ -18,43 +18,50 @@ void	print_state(char state, t_philo *p)
 	size_t	time_stamp;
 
 	time_now = cur_time();
-	time_stamp = time_now - p->start_time;
+	time_stamp = time_now - p->s->start_time;
 	if (check_death(p))
 		return ;
-	// pthread_mutex_lock(p->p_print_lock);
+	// pthread_mutex_lock(&p->s->lock);
 	if (state == 'f')
-		printf("%zu %zu has taken a fork\n", time_stamp, p->p_index);
+		printf("%zu %u has taken a fork\n", time_stamp, p->p_index);
 	else if (state == 'e')
 	{
-		printf("%zu %zu is eating\n", time_stamp, p->p_index);
-		pthread_mutex_lock(p->p_meal_lock);
+		printf("%zu %u is eating\n", time_stamp, p->p_index);
+		pthread_mutex_lock(&p->s->lock);
 		p->last_meal = time_now;
-		pthread_mutex_unlock(p->p_meal_lock);
-		ft_usleep(p->args.time_to_eat);
+		pthread_mutex_unlock(&p->s->lock);
+		ft_usleep(p->s->time_to_eat);
 	}
 	else if (state == 's')
 	{	
-		printf("%zu %zu is sleeping\n", time_now - p->start_time, p->p_index);
-		ft_usleep(p->args.time_to_sleep);
+		printf("%zu %u is sleeping\n", time_now - p->s->start_time, p->p_index);
+		ft_usleep(p->s->time_to_sleep);
 	}
 	else if (state == 't')
-		printf("%zu %zu is thinking\n", time_stamp, p->p_index);
-	// pthread_mutex_unlock(p->p_print_lock);
+		printf("%zu %u is thinking\n", time_stamp, p->p_index);
+	// pthread_mutex_unlock(&p->s->lock);
 }
 
 void	use_forks(t_philo *p)
 {
 	size_t	r_fork;
 	size_t	l_fork;
+	size_t	tmp_fork;
 
 	r_fork = p->p_index - 1;
-	l_fork = p->p_index % p->philo_ct;
+	l_fork = p->p_index % p->s->p_ct;
+	if (r_fork > l_fork)
+	{
+		tmp_fork = r_fork;
+		r_fork = l_fork;
+		l_fork = tmp_fork;
+	}
 	pthread_mutex_lock(&p->forks_lock[r_fork]);
 	print_state('f', p);
-	if (p->philo_ct == 1)
+	if (p->s->p_ct == 1)
 	{
 		pthread_mutex_unlock(&p->forks_lock[r_fork]);
-		ft_usleep(p->args.time_to_die);
+		ft_usleep(p->s->time_to_die);
 		return ;
 	}
 	pthread_mutex_lock(&p->forks_lock[l_fork]);
@@ -71,13 +78,13 @@ bool	monitor(t_setup *s)
 	i = -1;
 	while (1)
 	{
-		if (i + 1 == (int)s->philo_ct)
+		if (i + 1 == (int)s->p_ct)
 			i = -1;
 		if (check_death(&s->p[++i]))
 		{
-			pthread_mutex_lock(s->p->p_dead_lock);
+			pthread_mutex_lock(&s->lock);
 			s->end_threads = 1;
-			pthread_mutex_unlock(s->p->p_dead_lock);
+			pthread_mutex_unlock(&s->lock);
 			return (0);
 		}
 	}
@@ -89,8 +96,8 @@ void	*routine(void *arg)
 	t_philo	*p;
 
 	p = (t_philo *)arg;
-	if (!(p->p_index % 2) || (p->philo_ct > 1 && p->p_index == p->philo_ct))
-		ft_usleep(p->args.time_to_eat);
+	if (!(p->p_index % 2) || (p->s->p_ct > 1 && p->p_index == p->s->p_ct))
+		ft_usleep(p->s->time_to_eat);
 	while (1)
 	{
 		if (check_death(p))

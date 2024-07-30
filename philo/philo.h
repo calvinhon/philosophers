@@ -24,30 +24,30 @@
 
 typedef struct s_philo
 {
-	size_t			p_index;
+	int				p_index;
 	size_t			last_meal;
 	size_t			times_ate;
 	pthread_mutex_t	*forks_lock;
-	t_setup			*s;
+	struct s_setup	*s;
 }	t_philo;
 
 typedef struct s_setup
 {
+	int				p_ct;
 	pthread_t		*threads;
-	int				philo_ct;
 	size_t			time_to_die;
 	size_t			time_to_eat;
 	size_t			time_to_sleep;
 	int				num_times_philo_must_eat;
 	size_t			start_time;
-	int				i;
 	bool			end_threads;
+	int				i;
 	pthread_mutex_t	*forks_lock;
 	pthread_mutex_t	lock;
 	t_philo			*p;
 }	t_setup;
 
-size_t	ft_atoi(char *str);
+int		ft_atoi(char *str);
 int		ft_error(char *str, t_setup *s, t_philo *p, int num);
 int		ft_usleep(size_t msec);
 size_t	cur_time(void);
@@ -55,7 +55,7 @@ void	free_all(t_setup *s, t_philo *p);
 void	*routine(void *arg);
 size_t	sum_num_arr(size_t *arr);
 void	philo_state(t_philo *p, int state);
-void	*monitor(void *arg);
+bool	monitor(t_setup *s);
 int		check_death(t_philo *p);
 
 #endif

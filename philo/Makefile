@@ -11,11 +11,11 @@
 # **************************************************************************** #
 
 NAME = philo
-# CFLAGS = -Wall -Werror -Wextra -pthread
+CFLAGS = -Wall -Werror -Wextra -pthread
 # CFLAGS = -Wall -Werror -Wextra -pthread -g3 -fsanitize=thread
-CFLAGS = -Wall -Werror -Wextra -pthread -g3 -fsanitize=address 
+# CFLAGS = -Wall -Werror -Wextra -pthread -g3 -fsanitize=address 
 OBJS = $(SRCS:.c=.o)
-SRCS = main.c routine.c routine_utils.c utils.c
+SRCS = main.c routine.c utils.c
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)

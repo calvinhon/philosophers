@@ -12,6 +12,24 @@
 
 #include "philo.h"
 
+bool	monitor(t_setup *s)
+{
+	s->i = -1;
+	while (1)
+	{
+		if (s->i + 1 == s->p_ct)
+			s->i = -1;
+		if (check_death(&s->p[++s->i]))
+		{
+			pthread_mutex_lock(&s->lock);
+			s->end_threads = 1;
+			pthread_mutex_unlock(&s->lock);
+			return (1);
+		}
+	}
+	return (0);
+}
+
 int	init_vars_2(char **av, t_setup *s, t_philo *p)
 {
 	s->time_to_die = ft_atoi(av[2]);
@@ -28,8 +46,11 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 		p[s->i].p_index = s->i + 1;
 		p[s->i].last_meal = s->start_time;
 		p[s->i].times_ate = 0;
-		p[s->i].forks_lock = s->forks_lock;
 		p[s->i].s = s;
+		p[s->i].r_fork = s->forks_lock[s->i];
+		if (s->p_ct > 1)
+			p[s->i].l_fork = s->forks_lock[(s->i + 1) % s->p_ct];
+		// printf("%i: rfork:%i lfork:%i\n", p[s->i].p_index, s->i, (s->i + 1) % s->p_ct);
 	}
 	return (1);
 }
@@ -62,7 +83,7 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	return (init_vars_2(av, s, p));
 }
 
-int	parse(char **av)
+int	valid_int(char **av)
 {
 	int	i;
 	int	j;
@@ -81,7 +102,6 @@ int	parse(char **av)
 	return (1);
 }
 
-
 int main(int ac, char **av)
 {
 	t_setup	*s;
@@ -89,7 +109,7 @@ int main(int ac, char **av)
 
 	s = NULL;
 	p = NULL;
-	if (ac < 5 || ac > 6 || !parse(av))
+	if (ac < 5 || ac > 6 || !valid_int(av))
 		return (1);
 	if (!init_vars(av, &s, &p) || s->p_ct > 200 || !s->p_ct)
 	{

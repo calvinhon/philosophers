@@ -27,7 +27,8 @@ typedef struct s_philo
 	int				p_index;
 	size_t			last_meal;
 	size_t			times_ate;
-	pthread_mutex_t	*forks_lock;
+	pthread_mutex_t	l_fork;
+	pthread_mutex_t	r_fork;
 	struct s_setup	*s;
 }	t_philo;
 
@@ -48,14 +49,10 @@ typedef struct s_setup
 }	t_setup;
 
 int		ft_atoi(char *str);
-int		ft_error(char *str, t_setup *s, t_philo *p, int num);
 int		ft_usleep(size_t msec);
 size_t	cur_time(void);
-void	free_all(t_setup *s, t_philo *p);
 void	*routine(void *arg);
 size_t	sum_num_arr(size_t *arr);
-void	philo_state(t_philo *p, int state);
-bool	monitor(t_setup *s);
-int		check_death(t_philo *p);
+bool	check_death(t_philo *p);
 
 #endif

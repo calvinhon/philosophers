@@ -45,6 +45,8 @@ typedef struct s_setup
 	int				i;
 	pthread_mutex_t	*forks_lock;
 	pthread_mutex_t	lock;
+	pthread_mutex_t	death_lock;
+	pthread_mutex_t	print_lock;
 	t_philo			*p;
 }	t_setup;
 
@@ -54,5 +56,6 @@ size_t	cur_time(void);
 void	*routine(void *arg);
 size_t	sum_num_arr(size_t *arr);
 bool	check_death(t_philo *p);
+void	free_all(t_setup *s, t_philo *p);
 
 #endif

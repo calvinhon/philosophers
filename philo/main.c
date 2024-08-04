@@ -21,9 +21,9 @@ bool	monitor(t_setup *s)
 			s->i = -1;
 		if (check_death(&s->p[++s->i]))
 		{
-			pthread_mutex_lock(&s->lock);
-			s->end_threads = 1;
-			pthread_mutex_unlock(&s->lock);
+			// pthread_mutex_lock(&s->death_lock);
+			// s->end_threads = 1;
+			// pthread_mutex_unlock(&s->death_lock);
 			return (1);
 		}
 	}
@@ -50,7 +50,6 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 		p[s->i].r_fork = &s->forks_lock[s->i];
 		if (s->p_ct > 1)
 			p[s->i].l_fork = &s->forks_lock[(s->i + 1) % s->p_ct];
-		printf("%i: rfork:%i lfork:%i\n", p[s->i].p_index, s->i, (s->i + 1) % s->p_ct);
 	}
 	return (1);
 }
@@ -75,6 +74,8 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	while (++s->i < s->p_ct)
 		pthread_mutex_init(&s->forks_lock[s->i], NULL);
 	pthread_mutex_init(&s->lock, NULL);
+	pthread_mutex_init(&s->death_lock, NULL);
+	pthread_mutex_init(&s->print_lock, NULL);
 	p = malloc(sizeof(t_philo) * s->p_ct);
 	if (!p)
 		return (0);
@@ -121,13 +122,10 @@ int main(int ac, char **av)
 		if (pthread_create(&s->threads[s->i], NULL, routine, &p[s->i]))
 			printf("thread creation failed\n");
 	monitor(s);
-	// s->i = -1;
-	// while (++s->i < s->p_ct)
-	// 	if (pthread_join(s->threads[s->i], NULL))
-	// 		printf("thread join failed\n");
 	s->i = -1;
 	while (++s->i < s->p_ct)
-		if (pthread_detach(s->threads[s->i]))
-			printf("thread detach failed\n");
+		if (pthread_join(s->threads[s->i], NULL))
+			printf("thread join failed\n");
+	free_all(s, p);
 	return (0);
 }

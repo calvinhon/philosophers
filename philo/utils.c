@@ -12,6 +12,20 @@
 
 #include "philo.h"
 
+void	free_all(t_setup *s, t_philo *p)
+{
+	while (++s->i < s->p_ct)
+		pthread_mutex_destroy(&s->forks_lock[s->i]);
+	free(s->forks_lock);
+	s->i = -1;
+	pthread_mutex_destroy(&s->lock);
+	pthread_mutex_destroy(&s->death_lock);
+	pthread_mutex_destroy(&s->print_lock);
+	free(s->threads);
+	free(s);
+	free(p);
+}
+	
 size_t	sum_num_arr(size_t *arr)
 {
 	int		count;
@@ -44,7 +58,7 @@ int	ft_usleep(size_t msec)
 
 	start = cur_time();
 	while ((cur_time() - start) < msec)
-		usleep(400);
+		usleep(200);
 	return (0);
 }
 

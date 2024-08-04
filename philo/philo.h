@@ -27,8 +27,8 @@ typedef struct s_philo
 	int				p_index;
 	size_t			last_meal;
 	size_t			times_ate;
-	pthread_mutex_t	l_fork;
-	pthread_mutex_t	r_fork;
+	pthread_mutex_t	*l_fork;
+	pthread_mutex_t	*r_fork;
 	struct s_setup	*s;
 }	t_philo;
 

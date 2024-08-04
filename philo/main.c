@@ -47,10 +47,10 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 		p[s->i].last_meal = s->start_time;
 		p[s->i].times_ate = 0;
 		p[s->i].s = s;
-		p[s->i].r_fork = s->forks_lock[s->i];
+		p[s->i].r_fork = &s->forks_lock[s->i];
 		if (s->p_ct > 1)
-			p[s->i].l_fork = s->forks_lock[(s->i + 1) % s->p_ct];
-		// printf("%i: rfork:%i lfork:%i\n", p[s->i].p_index, s->i, (s->i + 1) % s->p_ct);
+			p[s->i].l_fork = &s->forks_lock[(s->i + 1) % s->p_ct];
+		printf("%i: rfork:%i lfork:%i\n", p[s->i].p_index, s->i, (s->i + 1) % s->p_ct);
 	}
 	return (1);
 }

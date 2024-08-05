@@ -38,9 +38,10 @@ bool	check_death(t_philo *p)
 	if (cur_time() - p->last_meal >= p->s->time_to_die)
 	{
 		p->s->end_threads = 1;
-			pthread_mutex_lock(&p->s->print_lock);
-	printf("%zu %u died\n", cur_time() - p->s->start_time, p->p_index);
-	pthread_mutex_unlock(&p->s->print_lock);
+		pthread_mutex_unlock(&p->s->death_lock);
+		pthread_mutex_lock(&p->s->print_lock);
+		printf("%zu %u died\n", cur_time() - p->s->start_time, p->p_index);
+		pthread_mutex_unlock(&p->s->print_lock);
 		pthread_mutex_unlock(&p->s->death_lock);
 		// print_state("died", p);
 		return (1);
@@ -106,13 +107,9 @@ void	*routine(void *arg)
 		ft_usleep(p->s->time_to_eat);
 		pthread_mutex_unlock(p->l_fork);
 		pthread_mutex_unlock(p->r_fork);
-		// if (check_death(p))
-		// 	break ;
 		if (!print_state("is sleeping", p))
 			break ;
 		ft_usleep(p->s->time_to_sleep);
-		// if (check_death(p))
-		// 	break ;
 		if (!print_state("is thinking", p))
 			break ;
 	}

@@ -115,6 +115,7 @@ int main(int ac, char **av)
 	if (!init_vars(av, &s, &p) || s->p_ct > 200 || !s->p_ct)
 	{
 		printf("malloc failed or invalid p_ct\n");
+		free_all(s, p);
 		return (1);
 	}
 	s->i = -1;

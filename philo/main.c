@@ -21,9 +21,9 @@ bool	monitor(t_setup *s)
 			s->i = -1;
 		if (check_death(&s->p[++s->i]))
 		{
-			// pthread_mutex_lock(&s->death_lock);
-			// s->end_threads = 1;
-			// pthread_mutex_unlock(&s->death_lock);
+			pthread_mutex_lock(&s->death_lock);
+			s->end_threads = 1;
+			pthread_mutex_unlock(&s->death_lock);
 			return (1);
 		}
 	}
@@ -50,6 +50,11 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 		p[s->i].r_fork = &s->forks_lock[s->i];
 		if (s->p_ct > 1)
 			p[s->i].l_fork = &s->forks_lock[(s->i + 1) % s->p_ct];
+		if (s->p_ct > 1 && s->i + 1 == s->p_ct)
+		{
+			p[s->i].r_fork = &s->forks_lock[(s->i + 1) % s->p_ct];
+			p[s->i].l_fork = &s->forks_lock[s->i];
+		}
 	}
 	return (1);
 }

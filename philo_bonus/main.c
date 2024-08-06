@@ -14,28 +14,9 @@
 
 bool	monitor(t_setup *s)
 {
-	s->i = -1;
-	while (1)
-	{
-		if (s->i + 1 == s->p_ct)
-			s->i = -1;
-		if (check_death(&s->p[++s->i]))
-		{
-			pthread_mutex_lock(&s->end_thread_lock);
-			s->dead_philo = 1;
-			pthread_mutex_unlock(&s->end_thread_lock);
-			return (1);
-		}
-		pthread_mutex_lock(&s->end_thread_lock);
-		if (s->num_of_full_philos == s->p_ct)
-		{
-			s->all_philos_full = 1;
-			pthread_mutex_unlock(&s->end_thread_lock);
-			return (1);
-		}
-		pthread_mutex_unlock(&s->end_thread_lock);
-	}
-	return (0);
+	wait_sem(s->full_philo);
+	wait_sem(s->dead_philo);
+	return (1);
 }
 
 int	init_vars_2(char **av, t_setup *s, t_philo *p)
@@ -44,7 +25,6 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 	s->time_to_eat = ft_atoi(av[3]);
 	s->time_to_sleep = ft_atoi(av[4]);
 	s->num_times_philo_must_eat = -1;
-	pthread_mutex_init(&s->meal_lock, NULL);
 	if (av[5])
 		s->num_times_philo_must_eat = ft_atoi(av[5]);
 	s->start_time = cur_time();
@@ -55,14 +35,6 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 		p[s->i].last_meal = s->start_time;
 		p[s->i].times_ate = 0;
 		p[s->i].s = s;
-		p[s->i].r_fork = &s->forks_lock[s->i];
-		if (s->p_ct > 1)
-			p[s->i].l_fork = &s->forks_lock[(s->i + 1) % s->p_ct];
-		if (s->p_ct > 1 && s->i + 1 == s->p_ct)
-		{
-			p[s->i].r_fork = &s->forks_lock[(s->i + 1) % s->p_ct];
-			p[s->i].l_fork = &s->forks_lock[s->i];
-		}
 	}
 	return (1);
 }
@@ -78,21 +50,23 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	*s_ptr = s;
 	memset(s, 0, sizeof(t_setup));
 	s->p_ct = ft_atoi(av[1]);
-	s->threads = malloc(sizeof(pthread_t) * s->p_ct);
-	if (!s->threads)
+	s->forks = sem_open("/forks", O_CREAT, 0644, s->p_ct);
+	if (s->forks == SEM_FAILED)
+        return (0);
+	s->full_philos = sem_open("/full_philos", O_CREAT, 0644, s->p_ct);
+	if (s->full_philos == SEM_FAILED)
+        return (0);
+	s->dead_philo = sem_open("/dead_philo", O_CREAT, 0644, 0);
+	if (s->dead_philo == SEM_FAILED)
+        return (0);
+	s->pid = malloc(sizeof(int) * s->p_ct);
+	if (!s->pid)
 		return (0);
-	s->forks_lock = malloc(sizeof(pthread_mutex_t) * s->p_ct);
-	if (!s->forks_lock)
-		return (0);
-	s->i = -1;
-	while (++s->i < s->p_ct)
-		pthread_mutex_init(&s->forks_lock[s->i], NULL);
-	pthread_mutex_init(&s->print_lock, NULL);
-	pthread_mutex_init(&s->end_thread_lock, NULL);
 	p = malloc(sizeof(t_philo) * s->p_ct);
 	if (!p)
 		return (0);
 	*p_ptr = p;
+	s->p = p;
 	return (init_vars_2(av, s, p));
 }
 
@@ -127,19 +101,27 @@ int	main(int ac, char **av)
 	if (!init_vars(av, &s, &p) || s->p_ct > 200 || !s->p_ct)
 	{
 		printf("malloc failed or invalid p_ct\n");
-		free_all(s, p);
-		return (1);
+		return (free_all(p), 1);
 	}
-	s->p = p;
 	s->i = -1;
 	while (++s->i < s->p_ct)
-		if (pthread_create(&s->threads[s->i], NULL, routine, &p[s->i]))
-			printf("thread creation failed\n");
+	{
+		s->pid[s->i] = fork();
+		if (s->pid[s->i] < 0)
+			return (free_all(p), 1);
+		if (!s->pid[s->i])
+			routine(&s->p[s->i]);
+	}
 	monitor(s);
 	s->i = -1;
 	while (++s->i < s->p_ct)
-		if (pthread_join(s->threads[s->i], NULL))
-			printf("thread join failed\n");
-	free_all(s, p);
+		kill(s->pid[s->i], SIGKILL);
+	s->i = -1;
+	while (++s->i < s->p_ct)
+		waitpid(s->pid[s->i], NULL, WNOHANG);
+	s->i = -1;
+	sem_unlink("/forks");
+	sem_unlink("/full_philo");
+	sem_unlink("/dead_philo");
 	return (0);
 }

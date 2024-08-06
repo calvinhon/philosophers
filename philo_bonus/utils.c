@@ -12,17 +12,12 @@
 
 #include "philo.h"
 
-void	free_all(t_setup *s, t_philo *p)
+void	free_all(t_philo *p)
 {
-	while (++s->i < s->p_ct)
-		pthread_mutex_destroy(&s->forks_lock[s->i]);
-	free(s->forks_lock);
-	s->i = -1;
-	pthread_mutex_destroy(&s->meal_lock);
-	pthread_mutex_destroy(&s->print_lock);
-	pthread_mutex_destroy(&s->end_thread_lock);
-	free(s->threads);
-	free(s);
+	// s->i = -1;
+	// while (++s->i < s->p_ct)
+	free(p->s->pid);
+	free(p->s);
 	free(p);
 }
 

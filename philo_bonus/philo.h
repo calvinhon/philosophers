@@ -20,42 +20,43 @@
 # include <pthread.h>
 # include <time.h>
 # include <sys/time.h>
+# include <sys/stat.h>
 # include <stdbool.h>
+# include <semaphore.h>
+# include <fcntl.h>
+# include <sys/wait.h>
 
 typedef struct s_philo
 {
 	int				p_index;
 	size_t			last_meal;
 	int				times_ate;
-	pthread_mutex_t	*l_fork;
-	pthread_mutex_t	*r_fork;
 	struct s_setup	*s;
 }	t_philo;
 
 typedef struct s_setup
 {
-	int				p_ct;
-	size_t			time_to_die;
-	size_t			time_to_eat;
-	size_t			time_to_sleep;
-	int				num_times_philo_must_eat;
-	int				num_of_full_philos;
-	size_t			start_time;
-	bool			dead_philo;
-	bool			all_philos_full;
-	int				i;
-	pthread_mutex_t	*forks_lock;
-	pthread_mutex_t	meal_lock;
-	pthread_mutex_t	print_lock;
-	pthread_mutex_t	end_thread_lock;
-	t_philo			*p;
+	int		p_ct;
+	size_t	time_to_die;
+	size_t	time_to_eat;
+	size_t	time_to_sleep;
+	int		num_times_philo_must_eat;
+	int		num_of_full_philos;
+	size_t	start_time;	
+	bool	all_philos_full;
+	int		i;
+	int		*pid;
+	sem_t	*forks;
+	sem_t	*full_philos;
+	sem_t	*dead_philo;
+	t_philo	*p;
 }	t_setup;
 
 int		ft_atoi(char *str);
 int		ft_usleep(size_t msec);
 size_t	cur_time(void);
-void	*routine(void *arg);
+void	*routine(t_philo *arg);
 bool	check_death(t_philo *p);
-void	free_all(t_setup *s, t_philo *p);
+void	free_all(t_philo *p);
 
 #endif

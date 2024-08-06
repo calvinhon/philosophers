@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:14:21 by chon              #+#    #+#             */
-/*   Updated: 2024/07/30 12:33:32 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/06 14:48:55 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	free_all(t_setup *s, t_philo *p)
 	free(s);
 	free(p);
 }
-	
+
 size_t	sum_num_arr(size_t *arr)
 {
 	int		count;
@@ -40,9 +40,9 @@ size_t	sum_num_arr(size_t *arr)
 	return (sum);
 }
 
-size_t	cur_time()
+size_t	cur_time(void)
 {
-	struct	timeval	time;
+	struct timeval	time;
 
 	if (gettimeofday(&time, NULL) < 0)
 	{
@@ -58,7 +58,7 @@ int	ft_usleep(size_t msec)
 
 	start = cur_time();
 	while ((cur_time() - start) < msec)
-		usleep(333);
+		usleep(500);
 	return (0);
 }
 
@@ -70,6 +70,6 @@ int	ft_atoi(char *str)
 	num = 0;
 	i = -1;
 	while (str[++i])
-		num = num * 10 + str[i] - '0'; 
+		num = num * 10 + str[i] - '0';
 	return (num);
 }

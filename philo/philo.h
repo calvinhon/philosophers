@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/07/30 12:49:53 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/06 13:26:31 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ int		ft_atoi(char *str);
 int		ft_usleep(size_t msec);
 size_t	cur_time(void);
 void	*routine(void *arg);
-size_t	sum_num_arr(size_t *arr);
 bool	check_death(t_philo *p);
 void	free_all(t_setup *s, t_philo *p);
 

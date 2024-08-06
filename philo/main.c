@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/07/30 12:51:03 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/06 14:37:18 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,8 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 
 int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 {
-	t_setup	*s; 
-	t_philo	*p; 
+	t_setup	*s;
+	t_philo	*p;
 
 	s = malloc(sizeof(t_setup));
 	if (!s)

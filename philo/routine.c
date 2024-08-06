@@ -12,16 +12,20 @@
 
 #include "philo.h"
 
-bool	print_state(char *str, t_philo *p)
+bool	end_thread(t_philo *p)
 {
 	pthread_mutex_lock(&p->s->death_lock);
 	if (p->s->end_threads)
-	{
-		pthread_mutex_unlock(&p->s->death_lock);
-		return (0);
-	}
+		return (pthread_mutex_unlock(&p->s->death_lock), 1);
 	pthread_mutex_unlock(&p->s->death_lock);
+	return (0);
+}
+
+bool	print_state(char *str, t_philo *p)
+{
 	pthread_mutex_lock(&p->s->print_lock);
+	if (end_thread(p))
+		return (pthread_mutex_unlock(&p->s->print_lock), 0);
 	printf("%zu %u %s\n", cur_time() - p->s->start_time, p->p_index, str);
 	pthread_mutex_unlock(&p->s->print_lock);
 	return (1);
@@ -73,13 +77,14 @@ void	*routine(void *arg)
 
 	p = (t_philo *)arg;
 	if (!(p->p_index % 2) || (p->s->p_ct > 1 && p->p_index == p->s->p_ct))
-		ft_usleep(1);
+		ft_usleep(5);
 	while (1)
 	{
 		if (!use_forks(p))
 			break ;
 		if (!print_state("is eating", p))
-			break ;
+			return (pthread_mutex_unlock(p->l_fork),
+			pthread_mutex_unlock(p->r_fork), NULL);
 		ft_usleep(p->s->time_to_eat);
 		pthread_mutex_unlock(p->l_fork);
 		pthread_mutex_unlock(p->r_fork);
@@ -88,6 +93,9 @@ void	*routine(void *arg)
 		ft_usleep(p->s->time_to_sleep);
 		if (!print_state("is thinking", p))
 			break ;
+		if (end_thread(p))
+			break ;
+		ft_usleep(1);
 	}
 	return (NULL);
 }

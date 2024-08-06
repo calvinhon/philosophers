@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/08/06 13:26:31 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/06 15:16:31 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ typedef struct s_philo
 {
 	int				p_index;
 	size_t			last_meal;
-	size_t			times_ate;
+	int				times_ate;
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	*r_fork;
 	struct s_setup	*s;
@@ -40,13 +40,15 @@ typedef struct s_setup
 	size_t			time_to_eat;
 	size_t			time_to_sleep;
 	int				num_times_philo_must_eat;
+	int				num_of_full_philos;
 	size_t			start_time;
-	bool			end_threads;
+	bool			dead_philo;
+	bool			all_philos_full;
 	int				i;
 	pthread_mutex_t	*forks_lock;
-	pthread_mutex_t	lock;
-	pthread_mutex_t	death_lock;
+	pthread_mutex_t	meal_lock;
 	pthread_mutex_t	print_lock;
+	pthread_mutex_t	end_thread_lock;
 	t_philo			*p;
 }	t_setup;
 

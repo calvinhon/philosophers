@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/08/06 14:37:18 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/06 15:26:38 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,19 @@ bool	monitor(t_setup *s)
 			s->i = -1;
 		if (check_death(&s->p[++s->i]))
 		{
-			pthread_mutex_lock(&s->death_lock);
-			s->end_threads = 1;
-			pthread_mutex_unlock(&s->death_lock);
+			pthread_mutex_lock(&s->end_thread_lock);
+			s->dead_philo = 1;
+			pthread_mutex_unlock(&s->end_thread_lock);
 			return (1);
 		}
+		pthread_mutex_lock(&s->end_thread_lock);
+		if (s->num_of_full_philos == s->p_ct)
+		{
+			s->all_philos_full = 1;
+			pthread_mutex_unlock(&s->end_thread_lock);
+			return (1);
+		}
+		pthread_mutex_unlock(&s->end_thread_lock);
 	}
 	return (0);
 }
@@ -36,10 +44,10 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 	s->time_to_eat = ft_atoi(av[3]);
 	s->time_to_sleep = ft_atoi(av[4]);
 	s->num_times_philo_must_eat = -1;
+	pthread_mutex_init(&s->meal_lock, NULL);
 	if (av[5])
 		s->num_times_philo_must_eat = ft_atoi(av[5]);
 	s->start_time = cur_time();
-	s->end_threads = 0;
 	s->i = -1;
 	while (++s->i < s->p_ct)
 	{
@@ -68,6 +76,7 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	if (!s)
 		return (0);
 	*s_ptr = s;
+	memset(s, 0, sizeof(t_setup));
 	s->p_ct = ft_atoi(av[1]);
 	s->threads = malloc(sizeof(pthread_t) * s->p_ct);
 	if (!s->threads)
@@ -78,14 +87,12 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	s->i = -1;
 	while (++s->i < s->p_ct)
 		pthread_mutex_init(&s->forks_lock[s->i], NULL);
-	pthread_mutex_init(&s->lock, NULL);
-	pthread_mutex_init(&s->death_lock, NULL);
 	pthread_mutex_init(&s->print_lock, NULL);
+	pthread_mutex_init(&s->end_thread_lock, NULL);
 	p = malloc(sizeof(t_philo) * s->p_ct);
 	if (!p)
 		return (0);
 	*p_ptr = p;
-	s->p = p;
 	return (init_vars_2(av, s, p));
 }
 
@@ -108,14 +115,14 @@ int	valid_int(char **av)
 	return (1);
 }
 
-int main(int ac, char **av)
+int	main(int ac, char **av)
 {
 	t_setup	*s;
 	t_philo	*p;
 
 	s = NULL;
 	p = NULL;
-	if (ac < 5 || ac > 6 || !valid_int(av))
+	if (ac < 5 || ac > 6 || !valid_int(av) || (av[5] && ft_atoi(av[5]) == 0))
 		return (1);
 	if (!init_vars(av, &s, &p) || s->p_ct > 200 || !s->p_ct)
 	{
@@ -123,6 +130,7 @@ int main(int ac, char **av)
 		free_all(s, p);
 		return (1);
 	}
+	s->p = p;
 	s->i = -1;
 	while (++s->i < s->p_ct)
 		if (pthread_create(&s->threads[s->i], NULL, routine, &p[s->i]))

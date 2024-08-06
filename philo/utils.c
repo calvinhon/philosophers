@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:14:21 by chon              #+#    #+#             */
-/*   Updated: 2024/08/06 14:48:55 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/06 15:43:51 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,26 +18,12 @@ void	free_all(t_setup *s, t_philo *p)
 		pthread_mutex_destroy(&s->forks_lock[s->i]);
 	free(s->forks_lock);
 	s->i = -1;
-	pthread_mutex_destroy(&s->lock);
-	pthread_mutex_destroy(&s->death_lock);
+	pthread_mutex_destroy(&s->meal_lock);
 	pthread_mutex_destroy(&s->print_lock);
+	pthread_mutex_destroy(&s->end_thread_lock);
 	free(s->threads);
 	free(s);
 	free(p);
-}
-
-size_t	sum_num_arr(size_t *arr)
-{
-	int		count;
-	int		i;
-	size_t	sum;
-
-	count = sizeof(*arr) / sizeof(size_t);
-	i = -1;
-	sum = 0;
-	while (++i < count)
-		sum += arr[i];
-	return (sum);
 }
 
 size_t	cur_time(void)
@@ -58,7 +44,7 @@ int	ft_usleep(size_t msec)
 
 	start = cur_time();
 	while ((cur_time() - start) < msec)
-		usleep(500);
+		usleep(550);
 	return (0);
 }
 

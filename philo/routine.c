@@ -29,13 +29,6 @@ bool	print_state(char *str, t_philo *p)
 
 bool	check_death(t_philo *p)
 {
-	pthread_mutex_lock(&p->s->death_lock);
-	if (p->s->end_threads)
-	{
-		pthread_mutex_unlock(&p->s->death_lock);
-		return (1);
-	}
-	pthread_mutex_unlock(&p->s->death_lock);
 	pthread_mutex_lock(&p->s->lock);
 	if (cur_time() - p->last_meal >= p->s->time_to_die)
 	{
@@ -83,8 +76,6 @@ void	*routine(void *arg)
 		ft_usleep(1);
 	while (1)
 	{
-		if (check_death(p))
-			break ;
 		if (!use_forks(p))
 			break ;
 		if (!print_state("is eating", p))

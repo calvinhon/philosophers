@@ -58,7 +58,7 @@ int	ft_usleep(size_t msec)
 
 	start = cur_time();
 	while ((cur_time() - start) < msec)
-		usleep(350);
+		usleep(333);
 	return (0);
 }
 

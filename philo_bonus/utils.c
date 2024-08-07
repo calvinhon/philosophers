@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:14:21 by chon              #+#    #+#             */
-/*   Updated: 2024/08/06 15:43:51 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/07 17:09:51 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,15 @@ void	free_all(t_philo *p)
 {
 	// s->i = -1;
 	// while (++s->i < s->p_ct)
+	sem_unlink("/forks");
+	sem_unlink("/print");
+	sem_unlink("/full_philo");
+	sem_unlink("/dead_philo");
 	sem_close(p->s->forksSem);
+	sem_close(p->s->printSem);
 	sem_close(p->s->fullSem);
 	sem_close(p->s->deadSem);
+	sem_close(p->s->simSem);
 	free(p->s->threads);
 	free(p->s->pid);
 	free(p->s);

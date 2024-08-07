@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/08/06 15:16:31 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/07 15:45:10 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,7 @@ typedef struct s_setup
 	bool			all_philos_full;
 	int				i;
 	pthread_mutex_t	*forks_lock;
-	pthread_mutex_t	meal_lock;
-	pthread_mutex_t	print_lock;
-	pthread_mutex_t	end_thread_lock;
+	pthread_mutex_t	lock;
 	t_philo			*p;
 }	t_setup;
 

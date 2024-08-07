@@ -12,30 +12,21 @@
 
 #include "philo.h"
 
-bool	end_thread(t_philo *p)
-{
-	if (p->s->dead_philo || p->s->all_philos_full)
-		return (1);
-	return (0);
-}
+// bool	end_thread(t_philo *p)
+// {
+// 	if (p->s->dead_philo || p->s->all_philos_full)
+// 		return (1);
+// 	return (0);
+// }
 
 bool	print_state(char *str, t_philo *p)
 {
-	if (end_thread(p))
-		return (0);
+	// if (end_thread(p))
+	// 	return (0);
+	sem_wait(p->s->printSem);
 	printf("%zu %u %s\n", cur_time() - p->s->start_time, p->p_index, str);
+	sem_post(p->s->printSem);
 	return (1);
-}
-
-bool	check_death(t_philo *p)
-{
-	if (cur_time() - p->last_meal >= p->s->time_to_die)
-	{
-		print_state("died", p);
-		sem_post(p->s->deadSem);
-		return (1);
-	}
-	return (0);
 }
 
 bool	use_forks(t_philo *p)
@@ -63,8 +54,10 @@ bool	use_forks(t_philo *p)
 
 void	*routine(t_philo *p)
 {
-	if (!(p->p_index % 2) || (p->s->p_ct > 1 && p->p_index == p->s->p_ct))
-		ft_usleep(5);
+	if (pthread_create(&p->s->threads[p->p_index - 1], NULL, monitor, p))
+		printf("thread creation failed\n");
+	if (pthread_detach(p->s->threads[p->p_index - 1]))
+		printf("thread detach failed\n");
 	while (1)
 	{
 		if (!use_forks(p))
@@ -78,8 +71,6 @@ void	*routine(t_philo *p)
 			break ;
 		ft_usleep(p->s->time_to_sleep);
 		if (!print_state("is thinking", p))
-			break ;
-		if (end_thread(p))
 			break ;
 		// ft_usleep(1);
 	}

@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/08/06 15:58:55 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/07 17:59:37 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <semaphore.h>
 # include <fcntl.h>
 # include <sys/wait.h>
+# include <signal.h>
 
 typedef struct s_philo
 {
@@ -49,8 +50,10 @@ typedef struct s_setup
 	int			i;
 	int			*pid;
 	sem_t		*forksSem;
+	sem_t		*printSem;
 	sem_t		*fullSem;
 	sem_t		*deadSem;
+	sem_t		*simSem;
 	t_philo		*p;
 }	t_setup;
 
@@ -60,5 +63,6 @@ size_t	cur_time(void);
 void	*routine(t_philo *arg);
 bool	check_death(t_philo *p);
 void	free_all(t_philo *p);
+void	*monitor(void *arg);
 
 #endif

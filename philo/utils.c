@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:14:21 by chon              #+#    #+#             */
-/*   Updated: 2024/08/07 15:01:00 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/07 15:53:52 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,7 @@ void	free_all(t_setup *s, t_philo *p)
 	while (++s->i < s->p_ct)
 		pthread_mutex_destroy(&s->forks_lock[s->i]);
 	free(s->forks_lock);
-	s->i = -1;
-	pthread_mutex_destroy(&s->meal_lock);
-	pthread_mutex_destroy(&s->print_lock);
-	pthread_mutex_destroy(&s->end_thread_lock);
+	pthread_mutex_destroy(&s->lock);
 	free(s->threads);
 	free(s);
 	free(p);
@@ -44,7 +41,7 @@ int	ft_usleep(size_t msec)
 
 	start = cur_time();
 	while ((cur_time() - start) < msec)
-		usleep(1000);
+		usleep(333);
 	return (0);
 }
 

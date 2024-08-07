@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/08/07 14:42:02 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/07 15:49:58 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,27 @@
 
 bool	monitor(t_setup *s)
 {
-	s->i = -1;
+	s->i = 0;
 	while (1)
 	{
 		if (s->i + 1 == s->p_ct)
-			s->i = -1;
-		if (check_death(&s->p[++s->i]))
+			s->i = 0;
+		pthread_mutex_lock(&s->lock);
+		if (cur_time() - s->p[s->i].last_meal >= s->time_to_die)
 		{
-			pthread_mutex_lock(&s->end_thread_lock);
 			s->dead_philo = 1;
-			pthread_mutex_unlock(&s->end_thread_lock);
+			printf("%zu %u died\n", cur_time() - s->start_time, s->p->p_index);
+			pthread_mutex_unlock(&s->lock);
 			return (1);
 		}
-		pthread_mutex_lock(&s->meal_lock);
 		if (s->num_of_full_philos == s->p_ct)
 		{
-			pthread_mutex_unlock(&s->meal_lock);
-			pthread_mutex_lock(&s->end_thread_lock);
 			s->all_philos_full = 1;
-			pthread_mutex_unlock(&s->end_thread_lock);
+			pthread_mutex_unlock(&s->lock);
 			return (1);
 		}
-		pthread_mutex_unlock(&s->meal_lock);
+		pthread_mutex_unlock(&s->lock);
+		s->i++;
 	}
 	return (0);
 }
@@ -46,7 +45,6 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 	s->time_to_eat = ft_atoi(av[3]);
 	s->time_to_sleep = ft_atoi(av[4]);
 	s->num_times_philo_must_eat = -1;
-	pthread_mutex_init(&s->meal_lock, NULL);
 	if (av[5])
 		s->num_times_philo_must_eat = ft_atoi(av[5]);
 	s->start_time = cur_time();
@@ -89,8 +87,7 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	s->i = -1;
 	while (++s->i < s->p_ct)
 		pthread_mutex_init(&s->forks_lock[s->i], NULL);
-	pthread_mutex_init(&s->print_lock, NULL);
-	pthread_mutex_init(&s->end_thread_lock, NULL);
+	pthread_mutex_init(&s->lock, NULL);
 	p = malloc(sizeof(t_philo) * s->p_ct);
 	if (!p)
 		return (0);
@@ -126,11 +123,11 @@ int	main(int ac, char **av)
 	p = NULL;
 	if (ac < 5 || ac > 6 || !valid_int(av) || (av[5] && ft_atoi(av[5]) == 0))
 		return (1);
-	if (!init_vars(av, &s, &p) || s->p_ct > 200 || !s->p_ct)
+	if (!init_vars(av, &s, &p) || s->p_ct > 200 || s->time_to_die < 60
+		|| s->time_to_eat < 60 || s->time_to_sleep < 60 || !s->p_ct)
 	{
-		printf("malloc failed or invalid p_ct\n");
-		free_all(s, p);
-		return (1);
+		printf("malloc failed or invalid argument\n");
+		return (free_all(s, p), 1);
 	}
 	s->p = p;
 	s->i = -1;

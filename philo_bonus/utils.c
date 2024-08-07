@@ -25,7 +25,6 @@ void	free_all(t_philo *p)
 	sem_close(p->s->fullSem);
 	sem_close(p->s->deadSem);
 	sem_close(p->s->simSem);
-	free(p->s->threads);
 	free(p->s->pid);
 	free(p->s);
 	free(p);

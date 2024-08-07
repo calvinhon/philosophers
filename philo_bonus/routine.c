@@ -54,10 +54,12 @@ bool	use_forks(t_philo *p)
 
 void	*routine(t_philo *p)
 {
-	if (pthread_create(&p->s->threads[p->p_index - 1], NULL, monitor, p))
-		printf("thread creation failed\n");
-	if (pthread_detach(p->s->threads[p->p_index - 1]))
-		printf("thread detach failed\n");
+	pthread_t	thread;
+
+	pthread_create(&thread, NULL, end_process, p);
+	pthread_detach(thread);
+	if (!(p->p_index % 2) || (p->s->p_ct > 1 && p->p_index == p->s->p_ct))
+		ft_usleep(p->s->time_to_eat);
 	while (1)
 	{
 		if (!use_forks(p))

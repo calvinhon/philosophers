@@ -9,10 +9,10 @@
 /*   Updated: 2024/08/07 18:12:14 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
+https://github.com/lpincoli/Philosophers42?tab=readme-ov-file
 #include "philo.h"
 
-void	*monitor(void *arg)
+void	*end_process(void *arg)
 {
 	t_philo *p;
 
@@ -21,11 +21,11 @@ void	*monitor(void *arg)
 	{
 		if (cur_time() - p->last_meal >= p->s->time_to_die)
 		{
-			printf("%zu %u died\n", cur_time() - p->s->start_time, p->p_index);
 			sem_post(p->s->simSem);
+			printf("%zu %u died\n", cur_time() - p->s->start_time, p->p_index);
 			break ;
 		}
-		ft_usleep(10);
+		// ft_usleep(10);
 		// if (s->num_of_full_philos == s->p_ct)
 		// {
 		// 	s->all_philos_full = 1;
@@ -66,9 +66,6 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	*s_ptr = s;
 	memset(s, 0, sizeof(t_setup));
 	s->p_ct = ft_atoi(av[1]);
-	s->threads = malloc(sizeof(pthread_t) * s->p_ct);
-	if (!s->threads)
-		return (0);
 	s->forksSem = sem_open("/forks", O_CREAT, 0777, s->p_ct);
 	if (s->forksSem == SEM_FAILED)
         return (0);
@@ -136,6 +133,7 @@ int	main(int ac, char **av)
 			return (free_all(p), 1);
 		if (!s->pid[s->i])
 		{
+			printf("hits\n");
 			routine(&s->p[s->i]);
 			// monitor(&s->p[s->i]);
 			// if (pthread_create(&s->threads[s->i], NULL, monitor, &p[s->i]))

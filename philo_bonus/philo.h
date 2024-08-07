@@ -37,7 +37,6 @@ typedef struct s_philo
 
 typedef struct s_setup
 {
-	pthread_t	*threads;
 	int			p_ct;
 	size_t		time_to_die;
 	size_t		time_to_eat;
@@ -63,6 +62,6 @@ size_t	cur_time(void);
 void	*routine(t_philo *arg);
 bool	check_death(t_philo *p);
 void	free_all(t_philo *p);
-void	*monitor(void *arg);
+void	*end_process(void *arg);
 
 #endif

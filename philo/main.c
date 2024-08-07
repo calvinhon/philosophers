@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/08/06 15:26:38 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/07 14:42:02 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,16 @@ bool	monitor(t_setup *s)
 			pthread_mutex_unlock(&s->end_thread_lock);
 			return (1);
 		}
-		pthread_mutex_lock(&s->end_thread_lock);
+		pthread_mutex_lock(&s->meal_lock);
 		if (s->num_of_full_philos == s->p_ct)
 		{
+			pthread_mutex_unlock(&s->meal_lock);
+			pthread_mutex_lock(&s->end_thread_lock);
 			s->all_philos_full = 1;
 			pthread_mutex_unlock(&s->end_thread_lock);
 			return (1);
 		}
-		pthread_mutex_unlock(&s->end_thread_lock);
+		pthread_mutex_unlock(&s->meal_lock);
 	}
 	return (0);
 }

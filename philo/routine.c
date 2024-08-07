@@ -24,7 +24,7 @@ bool	end_thread(t_philo *p)
 bool	print_state(char *str, t_philo *p)
 {
 	pthread_mutex_lock(&p->s->print_lock);
-	if (end_thread(p))
+	if (p->s->dead_philo || p->s->all_philos_full)
 		return (pthread_mutex_unlock(&p->s->print_lock), 0);
 	printf("%zu %u %s\n", cur_time() - p->s->start_time, p->p_index, str);
 	pthread_mutex_unlock(&p->s->print_lock);

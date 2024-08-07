@@ -12,11 +12,26 @@
 
 #include "philo.h"
 
-bool	monitor(t_setup *s)
+void	*monitor(void *arg)
 {
-	wait_sem(s->full_philo);
-	wait_sem(s->dead_philo);
-	return (1);
+	t_setup *s;
+
+	s = (t_setup *)arg;
+	// wait_sem(s->full_philo);
+	while (1)
+	{
+		if (check_death(s->p))
+		{
+			sem_wait(s->deadSem);
+			break ;
+		}
+		// if (s->num_of_full_philos == s->p_ct)
+		// {
+		// 	s->all_philos_full = 1;
+		// 	break ;
+		// }
+	}
+	return (NULL);
 }
 
 int	init_vars_2(char **av, t_setup *s, t_philo *p)
@@ -50,14 +65,17 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	*s_ptr = s;
 	memset(s, 0, sizeof(t_setup));
 	s->p_ct = ft_atoi(av[1]);
-	s->forks = sem_open("/forks", O_CREAT, 0644, s->p_ct);
-	if (s->forks == SEM_FAILED)
+	s->threads = malloc(sizeof(pthread_t) * s->p_ct);
+	if (!s->threads)
+		return (0);
+	s->forksSem = sem_open("/forks", O_CREAT, 0644, s->p_ct);
+	if (s->forksSem == SEM_FAILED)
         return (0);
-	s->full_philos = sem_open("/full_philos", O_CREAT, 0644, s->p_ct);
-	if (s->full_philos == SEM_FAILED)
+	s->fullSem = sem_open("/full_philos", O_CREAT, 0644, s->p_ct);
+	if (s->fullSem == SEM_FAILED)
         return (0);
-	s->dead_philo = sem_open("/dead_philo", O_CREAT, 0644, 0);
-	if (s->dead_philo == SEM_FAILED)
+	s->deadSem = sem_open("/dead_philo", O_CREAT, 0644, 0);
+	if (s->deadSem == SEM_FAILED)
         return (0);
 	s->pid = malloc(sizeof(int) * s->p_ct);
 	if (!s->pid)
@@ -110,18 +128,26 @@ int	main(int ac, char **av)
 		if (s->pid[s->i] < 0)
 			return (free_all(p), 1);
 		if (!s->pid[s->i])
+		{
 			routine(&s->p[s->i]);
+			if (pthread_create(&s->threads[s->i], NULL, monitor, s))
+				printf("thread creation failed\n");
+		}
 	}
 	monitor(s);
 	s->i = -1;
 	while (++s->i < s->p_ct)
+	{
 		kill(s->pid[s->i], SIGKILL);
+		// if (pthread_join(s->threads[s->i], NULL))
+		// 	printf("thread join failed\n");
+	}
 	s->i = -1;
 	while (++s->i < s->p_ct)
 		waitpid(s->pid[s->i], NULL, WNOHANG);
-	s->i = -1;
 	sem_unlink("/forks");
 	sem_unlink("/full_philo");
 	sem_unlink("/dead_philo");
+	free_all(p);
 	return (0);
 }

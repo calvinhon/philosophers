@@ -36,20 +36,22 @@ typedef struct s_philo
 
 typedef struct s_setup
 {
-	int		p_ct;
-	size_t	time_to_die;
-	size_t	time_to_eat;
-	size_t	time_to_sleep;
-	int		num_times_philo_must_eat;
-	int		num_of_full_philos;
-	size_t	start_time;	
-	bool	all_philos_full;
-	int		i;
-	int		*pid;
-	sem_t	*forks;
-	sem_t	*full_philos;
-	sem_t	*dead_philo;
-	t_philo	*p;
+	pthread_t	*threads;
+	int			p_ct;
+	size_t		time_to_die;
+	size_t		time_to_eat;
+	size_t		time_to_sleep;
+	int			num_times_philo_must_eat;
+	int			num_of_full_philos;
+	size_t		start_time;	
+	bool		all_philos_full;
+	bool		dead_philo;
+	int			i;
+	int			*pid;
+	sem_t		*forksSem;
+	sem_t		*fullSem;
+	sem_t		*deadSem;
+	t_philo		*p;
 }	t_setup;
 
 int		ft_atoi(char *str);

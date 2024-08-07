@@ -16,6 +16,10 @@ void	free_all(t_philo *p)
 {
 	// s->i = -1;
 	// while (++s->i < s->p_ct)
+	sem_close(p->s->forksSem);
+	sem_close(p->s->fullSem);
+	sem_close(p->s->deadSem);
+	free(p->s->threads);
 	free(p->s->pid);
 	free(p->s);
 	free(p);

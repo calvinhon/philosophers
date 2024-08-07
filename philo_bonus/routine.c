@@ -32,7 +32,7 @@ bool	check_death(t_philo *p)
 	if (cur_time() - p->last_meal >= p->s->time_to_die)
 	{
 		print_state("died", p);
-		wait_sem(dead_philo);
+		sem_post(p->s->deadSem);
 		return (1);
 	}
 	return (0);
@@ -40,7 +40,7 @@ bool	check_death(t_philo *p)
 
 bool	use_forks(t_philo *p)
 {
-	sem_wait(p->s->forks);
+	sem_wait(p->s->forksSem);
 	if (!print_state("has taken a fork", p))
 		return (0);
 	if (p->s->p_ct == 1)
@@ -48,7 +48,7 @@ bool	use_forks(t_philo *p)
 		ft_usleep(p->s->time_to_die);
 		return (0);
 	}
-	sem_wait(p->s->forks);
+	sem_wait(p->s->forksSem);
 	if (!print_state("has taken a fork", p))
 		return (0);
 	p->last_meal = cur_time();
@@ -56,7 +56,7 @@ bool	use_forks(t_philo *p)
 	{
 		p->times_ate++;
 		if (p->times_ate == p->s->num_times_philo_must_eat)
-			wait_sem(p->s->full_philos);
+			sem_wait(p->s->fullSem);
 	}
 	return (1);
 }
@@ -72,8 +72,8 @@ void	*routine(t_philo *p)
 		if (!print_state("is eating", p))
 			return (NULL);
 		ft_usleep(p->s->time_to_eat);
-		sem_post(p->s->forks);
-		sem_post(p->s->forks);
+		sem_post(p->s->forksSem);
+		sem_post(p->s->forksSem);
 		if (!print_state("is sleeping", p))
 			break ;
 		ft_usleep(p->s->time_to_sleep);
@@ -81,11 +81,7 @@ void	*routine(t_philo *p)
 			break ;
 		if (end_thread(p))
 			break ;
-		ft_usleep(1);
+		// ft_usleep(1);
 	}
-	sem_close(p->s->forks);
-	sem_close(p->s->full_philos);
-	sem_close(p->s->dead_philo);
-	free_all(p);
 	return (NULL);
 }

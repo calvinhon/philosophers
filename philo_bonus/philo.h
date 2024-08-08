@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:37 by chon              #+#    #+#             */
-/*   Updated: 2024/08/07 17:59:37 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/08 15:25:39 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,17 +42,14 @@ typedef struct s_setup
 	size_t		time_to_eat;
 	size_t		time_to_sleep;
 	int			num_times_philo_must_eat;
-	int			num_of_full_philos;
 	size_t		start_time;	
-	bool		all_philos_full;
-	bool		dead_philo;
 	int			i;
 	int			*pid;
-	sem_t		*forksSem;
-	sem_t		*printSem;
-	sem_t		*fullSem;
-	sem_t		*deadSem;
-	sem_t		*simSem;
+	sem_t		*forks_sem;
+	sem_t		*print_sem;
+	sem_t		*meal_sem;
+	sem_t		*full_sem;
+	sem_t		*sim_sem;
 	t_philo		*p;
 }	t_setup;
 
@@ -60,8 +57,7 @@ int		ft_atoi(char *str);
 int		ft_usleep(size_t msec);
 size_t	cur_time(void);
 void	*routine(t_philo *arg);
-bool	check_death(t_philo *p);
+int		valid_int(char **av);
 void	free_all(t_philo *p);
-void	*end_process(void *arg);
 
 #endif

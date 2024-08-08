@@ -6,31 +6,24 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/08/07 18:12:14 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/08 15:27:27 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-https://github.com/lpincoli/Philosophers42?tab=readme-ov-file
+
 #include "philo.h"
 
-void	*end_process(void *arg)
+void	*monitor_full(void *arg)
 {
-	t_philo *p;
+	t_philo	*p;
+	int		i;
 
 	p = (t_philo *)arg;
-	while (1)
+	if (p->s->p_ct > 1)
 	{
-		if (cur_time() - p->last_meal >= p->s->time_to_die)
-		{
-			sem_post(p->s->simSem);
-			printf("%zu %u died\n", cur_time() - p->s->start_time, p->p_index);
-			break ;
-		}
-		// ft_usleep(10);
-		// if (s->num_of_full_philos == s->p_ct)
-		// {
-		// 	s->all_philos_full = 1;
-		// 	break ;
-		// }
+		i = -1;
+		while (++i < p->s->p_ct)
+			sem_wait(p->s->full_sem);
+		sem_post(p->s->sim_sem);
 	}
 	return (NULL);
 }
@@ -52,6 +45,40 @@ int	init_vars_2(char **av, t_setup *s, t_philo *p)
 		p[s->i].times_ate = 0;
 		p[s->i].s = s;
 	}
+	s->i = -1;
+	while (++s->i < s->p_ct)
+	{
+		s->pid[s->i] = fork();
+		if (s->pid[s->i] < 0)
+			return (free_all(p), 1);
+		if (!s->pid[s->i])
+			routine(&s->p[s->i]);
+	}
+	return (1);
+}
+
+int	init_sems(t_setup *s)
+{
+	sem_unlink("/forks");
+	sem_unlink("/print");
+	sem_unlink("/meal");
+	sem_unlink("/full_philo");
+	sem_unlink("/simulation");
+	s->forks_sem = sem_open("/forks", O_CREAT, 0644, s->p_ct);
+	if (s->forks_sem == SEM_FAILED)
+		return (0);
+	s->print_sem = sem_open("/print", O_CREAT, 0644, 1);
+	if (s->print_sem == SEM_FAILED)
+		return (0);
+	s->meal_sem = sem_open("/meal", O_CREAT, 0644, 1);
+	if (s->meal_sem == SEM_FAILED)
+		return (0);
+	s->full_sem = sem_open("/full_philos", O_CREAT, 0644, 0);
+	if (s->full_sem == SEM_FAILED)
+		return (0);
+	s->sim_sem = sem_open("/simulation", O_CREAT, 0644, 0);
+	if (s->sim_sem == SEM_FAILED)
+		return (0);
 	return (1);
 }
 
@@ -66,21 +93,8 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	*s_ptr = s;
 	memset(s, 0, sizeof(t_setup));
 	s->p_ct = ft_atoi(av[1]);
-	s->forksSem = sem_open("/forks", O_CREAT, 0777, s->p_ct);
-	if (s->forksSem == SEM_FAILED)
-        return (0);
-	s->printSem = sem_open("/print", O_CREAT, 0644, 1);
-	if (s->printSem == SEM_FAILED)
-        return (0);
-	s->fullSem = sem_open("/full_philos", O_CREAT, 0644, s->p_ct);
-	if (s->fullSem == SEM_FAILED)
-        return (0);
-	s->deadSem = sem_open("/dead_philo", O_CREAT, 0644, 1);
-	if (s->deadSem == SEM_FAILED)
-        return (0);
-	s->simSem = sem_open("/simulation", O_CREAT, 0644, 0);
-	if (s->simSem == SEM_FAILED)
-        return (0);
+	if (!init_sems(s))
+		return (0);
 	s->pid = malloc(sizeof(int) * s->p_ct);
 	if (!s->pid)
 		return (0);
@@ -92,29 +106,11 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	return (init_vars_2(av, s, p));
 }
 
-int	valid_int(char **av)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	j = -1;
-	while (av[++i])
-	{
-		while (av[i][++j])
-		{
-			if (av[i][j] < '0' || av[i][j] > '9')
-				return (0);
-		}
-		j = -1;
-	}
-	return (1);
-}
-
 int	main(int ac, char **av)
 {
-	t_setup	*s;
-	t_philo	*p;
+	t_setup		*s;
+	t_philo		*p;
+	pthread_t	full_thread;
 
 	s = NULL;
 	p = NULL;
@@ -125,38 +121,12 @@ int	main(int ac, char **av)
 		printf("malloc failed or invalid p_ct\n");
 		return (free_all(p), 1);
 	}
+	pthread_create(&full_thread, NULL, monitor_full, p);
+	pthread_detach(full_thread);
+	sem_wait(s->sim_sem);
 	s->i = -1;
 	while (++s->i < s->p_ct)
-	{
-		s->pid[s->i] = fork();
-		if (s->pid[s->i] < 0)
-			return (free_all(p), 1);
-		if (!s->pid[s->i])
-		{
-			printf("hits\n");
-			routine(&s->p[s->i]);
-			// monitor(&s->p[s->i]);
-			// if (pthread_create(&s->threads[s->i], NULL, monitor, &p[s->i]))
-			// 	printf("thread creation failed\n");
-		}
-	}
-	// monitor(s);
-	// s->i = -1;
-	// while (++s->i < s->p_ct)
-	// {
-	// 	if (pthread_join(s->threads[s->i], NULL))
-	// 		printf("thread join failed\n");
-	// 	// if (pthread_detach(s->threads[s->i]))
-	// 	// 	printf("thread detach failed\n");
-	// }
-	sem_wait(s->simSem);
-	s->i = -1;
-	while (++s->i < s->p_ct)
-	{
 		kill(s->pid[s->i], SIGKILL);
-		// if (pthread_join(s->threads[s->i], NULL))
-		// 	printf("thread join failed\n");
-	}
 	s->i = -1;
 	while (++s->i < s->p_ct)
 		waitpid(s->pid[s->i], NULL, 0);

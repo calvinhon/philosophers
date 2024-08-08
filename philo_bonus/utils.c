@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 10:14:21 by chon              #+#    #+#             */
-/*   Updated: 2024/08/07 17:09:51 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/08 15:29:05 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,33 @@
 
 void	free_all(t_philo *p)
 {
-	// s->i = -1;
-	// while (++s->i < s->p_ct)
-	sem_unlink("/forks");
-	sem_unlink("/print");
-	sem_unlink("/full_philo");
-	sem_unlink("/dead_philo");
-	sem_close(p->s->forksSem);
-	sem_close(p->s->printSem);
-	sem_close(p->s->fullSem);
-	sem_close(p->s->deadSem);
-	sem_close(p->s->simSem);
+	sem_close(p->s->forks_sem);
+	sem_close(p->s->print_sem);
+	sem_close(p->s->meal_sem);
+	sem_close(p->s->full_sem);
+	sem_close(p->s->sim_sem);
 	free(p->s->pid);
 	free(p->s);
 	free(p);
+}
+
+int	valid_int(char **av)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = -1;
+	while (av[++i])
+	{
+		while (av[i][++j])
+		{
+			if (av[i][j] < '0' || av[i][j] > '9')
+				return (0);
+		}
+		j = -1;
+	}
+	return (1);
 }
 
 size_t	cur_time(void)
@@ -48,7 +61,7 @@ int	ft_usleep(size_t msec)
 
 	start = cur_time();
 	while ((cur_time() - start) < msec)
-		usleep(550);
+		usleep(250);
 	return (0);
 }
 

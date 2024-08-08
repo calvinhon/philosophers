@@ -6,7 +6,7 @@
 /*   By: chon <chon@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/16 09:21:23 by chon              #+#    #+#             */
-/*   Updated: 2024/08/07 15:49:58 by chon             ###   ########.fr       */
+/*   Updated: 2024/08/08 15:58:06 by chon             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ bool	monitor(t_setup *s)
 	s->i = 0;
 	while (1)
 	{
-		if (s->i + 1 == s->p_ct)
+		if (++s->i == s->p_ct)
 			s->i = 0;
 		pthread_mutex_lock(&s->lock);
 		if (cur_time() - s->p[s->i].last_meal >= s->time_to_die)
@@ -34,7 +34,6 @@ bool	monitor(t_setup *s)
 			return (1);
 		}
 		pthread_mutex_unlock(&s->lock);
-		s->i++;
 	}
 	return (0);
 }
@@ -92,6 +91,7 @@ int	init_vars(char **av, t_setup **s_ptr, t_philo **p_ptr)
 	if (!p)
 		return (0);
 	*p_ptr = p;
+	s->p = p;
 	return (init_vars_2(av, s, p));
 }
 
@@ -129,7 +129,6 @@ int	main(int ac, char **av)
 		printf("malloc failed or invalid argument\n");
 		return (free_all(s, p), 1);
 	}
-	s->p = p;
 	s->i = -1;
 	while (++s->i < s->p_ct)
 		if (pthread_create(&s->threads[s->i], NULL, routine, &p[s->i]))
